@@ -8,6 +8,13 @@ module.exports = function _recieveJSON(client, jsonOrBuffer) {
         json = JSON.parse(jsonOrBuffer.toString());
     }
 
+    else if (!jsonOrBuffer) {
+        json = {
+            type: 'hello',
+            count: -1
+        };
+    }
+
     json.count++;
 
     const jsonStr = JSON.stringify(json);
