@@ -1,0 +1,24 @@
+{
+  "name": "fb-node-hello",
+  "version": "1.0.0",
+  "description": "The hello server that will take in either flatbuffs or json and add one to the `count` field, then resend the data back through the socket connection.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "engines": {
+      "node": "4.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaelbpaulson/fb-node-hello.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/michaelbpaulson/fb-node-hello/issues"
+  },
+  "homepage": "https://github.com/michaelbpaulson/fb-node-hello#readme"
+}

@@ -1,0 +1,8 @@
+namespace Hello;
+
+table Hi {
+    type:string;
+    count:int;
+}
+
+root_type Hi;
