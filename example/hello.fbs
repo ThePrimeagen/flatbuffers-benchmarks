@@ -1,7 +1,10 @@
 namespace Hello;
 
+attribute "priority";
+enum Type : byte { Hello }
+
 table Hi {
-    type:string;
+    type:Type;
     count:int;
 }
 

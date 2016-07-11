@@ -6,6 +6,13 @@
 var Hello = Hello || {};
 
 /**
+ * @enum
+ */
+Hello.Type = {
+  Hello: 0
+};
+
+/**
  * @constructor
  */
 Hello.Hi = function() {
@@ -41,12 +48,11 @@ Hello.Hi.getRootAsHi = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.Encoding=} optionalEncoding
- * @returns {string|Uint8Array}
+ * @returns {Hello.Type}
  */
-Hello.Hi.prototype.type = function(optionalEncoding) {
+Hello.Hi.prototype.type = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+  return offset ? /** @type {Hello.Type} */ (this.bb.readInt8(this.bb_pos + offset)) : Hello.Type.Hello;
 };
 
 /**
@@ -66,10 +72,10 @@ Hello.Hi.startHi = function(builder) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} typeOffset
+ * @param {Hello.Type} type
  */
-Hello.Hi.addType = function(builder, typeOffset) {
-  builder.addFieldOffset(0, typeOffset, 0);
+Hello.Hi.addType = function(builder, type) {
+  builder.addFieldInt8(0, type, Hello.Type.Hello);
 };
 
 /**

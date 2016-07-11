@@ -8,17 +8,23 @@
     "start": "node index.js"
   },
   "engines": {
-      "node": "4.2.1"
+    "node": "4.2.1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/michaelbpaulson/fb-node-hello.git"
   },
   "keywords": [],
-  "author": "",
+  "author": {
+    "email": "michael.b.paulson@gmail.com",
+    "name": "Michael Paulson"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/michaelbpaulson/fb-node-hello/issues"
   },
-  "homepage": "https://github.com/michaelbpaulson/fb-node-hello#readme"
+  "homepage": "https://github.com/michaelbpaulson/fb-node-hello#readme",
+  "dependencies": {
+    "typedarray-to-buffer": "^3.1.2"
+  }
 }
