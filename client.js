@@ -4,6 +4,7 @@
 // TCP packets.
 const net = require('net');
 const FramingStream = require('./FramingStream');
+const REPORT = process.env.REPORT || false;
 
 module.exports = function _client(host, port, responder) {
     const opts = {
@@ -15,13 +16,16 @@ module.exports = function _client(host, port, responder) {
         const clientFramer = new FramingStream(client);
 
         clientFramer.on('data', function _onClientData(chunk) {
-            const res = responder(client, chunk);
+            const res = responder.fn(client, chunk);
             if (!res) {
+                if (REPORT && responder.report) {
+                    responder.report(chunk);
+                }
+
                 client.end();
             }
         });
 
-
-        responder(clientFramer, null);
+        responder.fn(clientFramer, null);
     });
 }

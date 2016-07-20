@@ -84,6 +84,7 @@ FramingStream.prototype._frameData = function _frameData(chunk) {
 
             frameMark = this._totalLen;
         }
+
     } while (remainingLength > 0);
 };
 

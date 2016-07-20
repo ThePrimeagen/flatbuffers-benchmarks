@@ -56,10 +56,19 @@ Hello.Hi.prototype.type = function() {
 };
 
 /**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+Hello.Hi.prototype.conversation = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
  * @returns {number}
  */
 Hello.Hi.prototype.count = function() {
-  var offset = this.bb.__offset(this.bb_pos, 6);
+  var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
 
@@ -67,7 +76,7 @@ Hello.Hi.prototype.count = function() {
  * @param {flatbuffers.Builder} builder
  */
 Hello.Hi.startHi = function(builder) {
-  builder.startObject(2);
+  builder.startObject(3);
 };
 
 /**
@@ -80,10 +89,18 @@ Hello.Hi.addType = function(builder, type) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} conversationOffset
+ */
+Hello.Hi.addConversation = function(builder, conversationOffset) {
+  builder.addFieldOffset(1, conversationOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @param {number} count
  */
 Hello.Hi.addCount = function(builder, count) {
-  builder.addFieldInt32(1, count, 0);
+  builder.addFieldInt32(2, count, 0);
 };
 
 /**
@@ -96,10 +113,108 @@ Hello.Hi.endHi = function(builder) {
 };
 
 /**
+ * @constructor
+ */
+Hello.Hellos = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {Hello.Hellos}
+ */
+Hello.Hellos.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {Hello.Hellos=} obj
+ * @returns {Hello.Hellos}
+ */
+Hello.Hellos.getRootAsHellos = function(bb, obj) {
+  return (obj || new Hello.Hellos).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {number} index
+ * @param {Hello.Hi=} obj
+ * @returns {Hello.Hi}
+ */
+Hello.Hellos.prototype.hiList = function(index, obj) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? (obj || new Hello.Hi).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+};
+
+/**
+ * @returns {number}
+ */
+Hello.Hellos.prototype.hiListLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+Hello.Hellos.startHellos = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} hiListOffset
+ */
+Hello.Hellos.addHiList = function(builder, hiListOffset) {
+  builder.addFieldOffset(0, hiListOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+Hello.Hellos.createHiListVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+Hello.Hellos.startHiListVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+Hello.Hellos.endHellos = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} offset
  */
-Hello.Hi.finishHiBuffer = function(builder, offset) {
+Hello.Hellos.finishHellosBuffer = function(builder, offset) {
   builder.finish(offset);
 };
 

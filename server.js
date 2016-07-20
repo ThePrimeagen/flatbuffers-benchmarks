@@ -12,7 +12,7 @@ module.exports = function createServer(host, port, responder) {
             const framer = new FramingStream(socket);
             framer.
                 on('data', function _onClientData(chunk) {
-                    responder(framer, chunk);
+                    responder.fn(framer, chunk);
                 });
         }).
         on('error', function _onServerError(e) {

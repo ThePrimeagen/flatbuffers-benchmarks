@@ -4,8 +4,18 @@ attribute "priority";
 enum Type : byte { Hello }
 
 table Hi {
-    type:Type;
-    count:int;
+    type: Type;
+
+    // To add some size-able amount of data that exists.  For Netflix you can
+    // think of this as a show's synopsis/title etc. etc.
+    conversation: string;
+
+    // A field we will mutate.
+    count: int;
 }
 
-root_type Hi;
+table Hellos {
+    hiList: [Hi];
+}
+
+root_type Hellos;

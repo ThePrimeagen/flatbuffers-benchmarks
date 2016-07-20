@@ -18,21 +18,24 @@ if (typeof IS_SERVER === 'string') {
 }
 
 let responder = null;
+let reporter = null;
 if (IS_JSON) {
-    responder = jsonResponder;
+    responder = jsonResponder.fn;
+    reporter = jsonResponder.report;
 }
 
 else {
-    responder = fbsResponder;
+    responder = fbsResponder.fn;
+    reporter = fbsResponder.report;
 }
 
 if (IS_SERVER) {
-    require('./../server')(HOST, PORT, responder);
+    require('./../server')(HOST, PORT, {fn: responder, report: reporter});
 }
 
 else {
     responder = limiter(MAX_COUNT, responder);
-    require('./../client')(HOST, PORT, responder);
+    require('./../client')(HOST, PORT, {fn: responder, report: reporter});
 }
 
 function booleanFromProcess(value, def) {
