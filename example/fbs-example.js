@@ -10,22 +10,6 @@ const percentToMutate = process.env.PERCENT_MUTATION || 0.25;
 const mutateAmount = Math.ceil(hiCount * percentToMutate);
 const DataGenerator = require('fb-node-generator').DataGenerator;
 
-Hi.prototype.mutateCount = function _mutateCount(nextCount) {
-
-    // This seems to be the mutateCount, but it should be generated since
-    // the number '8' is a great way to mess things up.  Unfortunately there
-    // is no mutate generator for JavaScript currently.  That should change
-    // in the foreseeable future.
-    var offset = this.bb.__offset(this.bb_pos, 8);
-
-    if (offset !== 0) {
-        this.bb.writeInt32(this.bb_pos + offset, nextCount);
-        return true;
-    }
-
-    return false;
-};
-
 var _recieveFBS = function _recieveFBS(client, buffer) {
     let hello = null;
 
@@ -110,7 +94,7 @@ function mutateRandomHi(hellos) {
         const rIndex = Math.floor(Math.random() * len);
         const hi = hellos.hiList(rIndex);
 
-        hi.mutateCount(hi.count() + 1);
+        hi.mutate_count(hi.count() + 1);
     }
 }
 

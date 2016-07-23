@@ -56,6 +56,21 @@ Hello.Hi.prototype.type = function() {
 };
 
 /**
+ * @param {Hello.Type} value
+ * @returns {boolean}
+ */
+Hello.Hi.prototype.mutate_type = function(value) {
+  var offset = this.bb.__offset(this.bb_pos, 4)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeInt8(this.bb_pos + offset, value);
+  return true;
+}
+
+/**
  * @param {flatbuffers.Encoding=} optionalEncoding
  * @returns {string|Uint8Array}
  */
@@ -71,6 +86,21 @@ Hello.Hi.prototype.count = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
+
+/**
+ * @param {number} value
+ * @returns {boolean}
+ */
+Hello.Hi.prototype.mutate_count = function(value) {
+  var offset = this.bb.__offset(this.bb_pos, 8)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeInt32(this.bb_pos + offset, value);
+  return true;
+}
 
 /**
  * @param {flatbuffers.Builder} builder
