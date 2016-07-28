@@ -39,6 +39,14 @@ DataGenerator.prototype = {
     getRandomString(len) {
         return this._read(len);
     },
+    
+    // Resets the data generator to be able to reproduce rows correctly.
+    reset() {
+        this._cache = [];
+        this._createVideo();
+        this._cursor = 0;
+        this._id = 0;
+    },
 
     _getId() {
         return startID + ++this._id;
