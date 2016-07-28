@@ -3,12 +3,12 @@
 const Hello = require('./hello_generated').Hello;
 const Hi = Hello.Hi;
 const Hellos = Hello.Hellos;
-const flatbuffers = require('./flatbuffers').flatbuffers;
+const flatbuffers = require('./../../flatbuffers').flatbuffers;
 const toBuffer = require('typedarray-to-buffer');
 const hiCount = process.env.HI_COUNT || 10;
 const percentToMutate = process.env.PERCENT_MUTATION || 0.25;
 const mutateAmount = Math.ceil(hiCount * percentToMutate);
-const DataGenerator = require('fb-node-generator').DataGenerator;
+const DataGenerator = require('./../../generator').DataGenerator;
 
 var _recieveFBS = function _recieveFBS(client, buffer) {
     let hello = null;

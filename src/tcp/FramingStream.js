@@ -1,7 +1,6 @@
 'use strict';
 
 const Duplex = require('stream').Duplex;
-debugger
 const inherits = require('util').inherits;
 
 const FramingStream = function _FramingStream(parentStream) {

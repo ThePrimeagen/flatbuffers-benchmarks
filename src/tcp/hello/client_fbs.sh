@@ -1,5 +1,4 @@
 # /usr/bin/env bash
-
 HI_COUNT=$1
 PERCENT_MUTATION=$2
 
@@ -13,7 +12,7 @@ fi
 
 time (export PERCENT_MUTATION=$PERCENT_MUTATION && \
       export HI_COUNT=$HI_COUNT && \
-      export IS_JSON=true &&
+      export IS_JSON=false &&
       export IS_SERVER=false &&
       export MAX_COUNT=50000 &&
-      node example/index.js)
+      node index.js)

@@ -1,0 +1,22 @@
+namespace Netflix;
+
+table Video {
+    id:int;
+    title:string;
+    synopsis:string;
+    altSynopsis:string;
+    original:bool = false;
+    count:int;
+}
+
+table Row {
+    title:string;
+    videos:[Video];
+}
+
+table Lolomo {
+    id:string;
+    rows:[Row];
+}
+
+root_type Lolomo;
