@@ -3,7 +3,7 @@
 const assert = require('assert');
 
 const flatbuffers = require('./../flatbuffers').flatbuffers;
-const NetflixFBS = require('./test_generated').Netflix;
+const NetflixFBS = require('./lolomo_generated').Netflix;
 
 function generate(lolomo, unique) {
     // Convert to fbs.
@@ -133,8 +133,13 @@ function createVideo(builder, video, listOfIndices) {
     Video.addTitle(builder, titleOffset);
     Video.addSynopsis(builder, synopsisOffset);
     Video.addAltSynopsis(builder, altSynopsisOffset);
-    Video.addOriginal(builder, video.original);
-    Video.addCount(builder, 0);
+    Video.addIsOriginal(builder, video.isOriginal);
+    Video.addIsSeason(builder, video.isSeason);
+    Video.addIsMovie(builder, video.isMovie);
+    Video.addRunningTime(builder, video.runningTime);
+    Video.addMaturityRating(builder, video.maturityRating);
+    Video.addStarRating(builder, video.starRating);
+    Video.addYearCreated(builder, video.yearCreated);
 
     const nextIndex = Video.endVideo(builder);
     listOfIndices.push(nextIndex);

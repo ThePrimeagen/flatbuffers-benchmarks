@@ -1,0 +1,41 @@
+namespace Netflix;
+
+attribute "priority";
+enum Badging:byte (bit_flags) { HD = 0, UHD, Dolby5_1, Dolby7_1, HDR }
+enum MaturityRating:short (bit_flags) {
+    Y,
+    PG,
+    PG_13,
+    TV_14,
+    TV_17,
+    R,
+    NR
+}
+
+table Video {
+    id:int;
+    title:string;
+    synopsis:string;
+    altSynopsis:string;
+    isOriginal:bool = false;
+    isSeason:bool = false;
+    isMovie:bool = false;
+    runningTime:short;
+    maturityRating:MaturityRating;
+    starRating:byte;
+    yearCreated:short;
+    badging:Badging;
+    boxShotURL:string;
+}
+
+table Row {
+    title:string;
+    videos:[Video];
+}
+
+table Lolomo {
+    id:string;
+    rows:[Row];
+}
+
+root_type Lolomo;

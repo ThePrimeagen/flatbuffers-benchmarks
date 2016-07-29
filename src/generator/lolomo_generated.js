@@ -2,8 +2,33 @@
 
 /**
  * @const
-*/
+ * @namespace
+ */
 var Netflix = Netflix || {};
+
+/**
+ * @enum
+ */
+Netflix.Badging = {
+  HD: 1,
+  UHD: 2,
+  Dolby5_1: 4,
+  Dolby7_1: 8,
+  HDR: 16
+};
+
+/**
+ * @enum
+ */
+Netflix.MaturityRating = {
+  Y: 1,
+  PG: 2,
+  PG_13: 4,
+  TV_14: 8,
+  TV_17: 16,
+  R: 32,
+  NR: 64
+};
 
 /**
  * @constructor
@@ -78,24 +103,81 @@ Netflix.Video.prototype.altSynopsis = function(optionalEncoding) {
 /**
  * @returns {boolean}
  */
-Netflix.Video.prototype.original = function() {
+Netflix.Video.prototype.isOriginal = function() {
   var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
+ * @returns {boolean}
+ */
+Netflix.Video.prototype.isSeason = function() {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
+ * @returns {boolean}
+ */
+Netflix.Video.prototype.isMovie = function() {
+  var offset = this.bb.__offset(this.bb_pos, 16);
   return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
 };
 
 /**
  * @returns {number}
  */
-Netflix.Video.prototype.count = function() {
-  var offset = this.bb.__offset(this.bb_pos, 14);
+Netflix.Video.prototype.runningTime = function() {
+  var offset = this.bb.__offset(this.bb_pos, 18);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Netflix.MaturityRating}
+ */
+Netflix.Video.prototype.maturityRating = function() {
+  var offset = this.bb.__offset(this.bb_pos, 20);
+  return offset ? /** @type {Netflix.MaturityRating} */ (this.bb.readInt16(this.bb_pos + offset)) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+Netflix.Video.prototype.starRating = function() {
+  var offset = this.bb.__offset(this.bb_pos, 22);
+  return offset ? this.bb.readInt8(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+Netflix.Video.prototype.yearCreated = function() {
+  var offset = this.bb.__offset(this.bb_pos, 24);
+  return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Netflix.Badging}
+ */
+Netflix.Video.prototype.badging = function() {
+  var offset = this.bb.__offset(this.bb_pos, 26);
+  return offset ? /** @type {Netflix.Badging} */ (this.bb.readInt8(this.bb_pos + offset)) : 0;
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+Netflix.Video.prototype.boxShotURL = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 28);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
 Netflix.Video.startVideo = function(builder) {
-  builder.startObject(6);
+  builder.startObject(13);
 };
 
 /**
@@ -132,18 +214,74 @@ Netflix.Video.addAltSynopsis = function(builder, altSynopsisOffset) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {boolean} original
+ * @param {boolean} isOriginal
  */
-Netflix.Video.addOriginal = function(builder, original) {
-  builder.addFieldInt8(4, +original, +false);
+Netflix.Video.addIsOriginal = function(builder, isOriginal) {
+  builder.addFieldInt8(4, +isOriginal, +false);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {number} count
+ * @param {boolean} isSeason
  */
-Netflix.Video.addCount = function(builder, count) {
-  builder.addFieldInt32(5, count, 0);
+Netflix.Video.addIsSeason = function(builder, isSeason) {
+  builder.addFieldInt8(5, +isSeason, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} isMovie
+ */
+Netflix.Video.addIsMovie = function(builder, isMovie) {
+  builder.addFieldInt8(6, +isMovie, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} runningTime
+ */
+Netflix.Video.addRunningTime = function(builder, runningTime) {
+  builder.addFieldInt32(7, runningTime, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Netflix.MaturityRating} maturityRating
+ */
+Netflix.Video.addMaturityRating = function(builder, maturityRating) {
+  builder.addFieldInt16(8, maturityRating, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} starRating
+ */
+Netflix.Video.addStarRating = function(builder, starRating) {
+  builder.addFieldInt8(9, starRating, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} yearCreated
+ */
+Netflix.Video.addYearCreated = function(builder, yearCreated) {
+  builder.addFieldInt16(10, yearCreated, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Netflix.Badging} badging
+ */
+Netflix.Video.addBadging = function(builder, badging) {
+  builder.addFieldInt8(11, badging, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} boxShotURLOffset
+ */
+Netflix.Video.addBoxShotURL = function(builder, boxShotURLOffset) {
+  builder.addFieldOffset(12, boxShotURLOffset, 0);
 };
 
 /**

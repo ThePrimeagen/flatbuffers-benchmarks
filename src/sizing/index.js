@@ -4,24 +4,24 @@ const toBuffer = require('typedarray-to-buffer');
 const ROWS = process.argv[2];
 const COLUMNS = process.argv[3];
 const fbGenerator = require('../generator');
-const DataGenerator = fbGenerator.DataGenerator;
+const LolomoGenerator = fbGenerator.LolomoGenerator;
 const jsonGen = fbGenerator.json;
 const fbGen = fbGenerator.fbs;
 const NetflixFBS = fbGenerator.NetflixFBS;
 const Lolomo = NetflixFBS.Lolomo;
 const flatbuffers = fbGenerator.flatbuffers;
 const fs = require('fs');
-const gen = new DataGenerator();
+const gen = new LolomoGenerator();
 let once = true;
 
 [true, false].forEach(function _graphOrTree(isGraph) {
     const gOrTName = isGraph ? 'graph' : 'tree';
 
     [0, 0.2, 0.4, 0.6, 0.8, 1].forEach(function _similarEach(simPercent) {
-        
+
         // Reset always before generating data.
         gen.reset();
-        
+
         const bName = ['b', gOrTName, ROWS, COLUMNS, simPercent].join('_');
         const jName = ['j', gOrTName, ROWS, COLUMNS, simPercent].join('_');
         const lolomo = gen.createLolomo(ROWS, COLUMNS, simPercent);
