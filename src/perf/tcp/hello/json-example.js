@@ -3,7 +3,7 @@
 const hiCount = process.env.HI_COUNT || 10;
 const percentToMutate = process.env.PERCENT_MUTATION || 0.25;
 const mutateAmount = Math.ceil(hiCount * percentToMutate);
-const DataGenerator = require('./../../generator').DataGenerator;
+const DataGenerator = require('./../../../generator').DataGenerator;
 
 var _recieveJSON = function _recieveJSON(client, jsonOrBuffer) {
     let json = jsonOrBuffer;

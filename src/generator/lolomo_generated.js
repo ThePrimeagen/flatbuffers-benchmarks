@@ -129,7 +129,7 @@ Netflix.Video.prototype.isMovie = function() {
  */
 Netflix.Video.prototype.runningTime = function() {
   var offset = this.bb.__offset(this.bb_pos, 18);
-  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+  return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
 };
 
 /**
@@ -165,19 +165,10 @@ Netflix.Video.prototype.badging = function() {
 };
 
 /**
- * @param {flatbuffers.Encoding=} optionalEncoding
- * @returns {string|Uint8Array}
- */
-Netflix.Video.prototype.boxShotURL = function(optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 28);
-  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-};
-
-/**
  * @param {flatbuffers.Builder} builder
  */
 Netflix.Video.startVideo = function(builder) {
-  builder.startObject(13);
+  builder.startObject(12);
 };
 
 /**
@@ -241,7 +232,7 @@ Netflix.Video.addIsMovie = function(builder, isMovie) {
  * @param {number} runningTime
  */
 Netflix.Video.addRunningTime = function(builder, runningTime) {
-  builder.addFieldInt32(7, runningTime, 0);
+  builder.addFieldInt16(7, runningTime, 0);
 };
 
 /**
@@ -274,14 +265,6 @@ Netflix.Video.addYearCreated = function(builder, yearCreated) {
  */
 Netflix.Video.addBadging = function(builder, badging) {
   builder.addFieldInt8(11, badging, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} boxShotURLOffset
- */
-Netflix.Video.addBoxShotURL = function(builder, boxShotURLOffset) {
-  builder.addFieldOffset(12, boxShotURLOffset, 0);
 };
 
 /**

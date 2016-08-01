@@ -21,6 +21,9 @@ let once = true;
 
         // Reset always before generating data.
         gen.reset();
+        if (simPercent === 0.2 && gOrTName === 'graph') {
+            debugger;
+        }
 
         const bName = ['b', gOrTName, ROWS, COLUMNS, simPercent].join('_');
         const jName = ['j', gOrTName, ROWS, COLUMNS, simPercent].join('_');

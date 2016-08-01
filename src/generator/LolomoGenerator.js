@@ -17,6 +17,8 @@ const maturityList = [
     "NR"
 ];
 
+let ID = 8000000;
+
 const LolomoGenerator = function LolomoGenerator() {
     this._cache = [];
     this._generator = new DataGenerator();
@@ -27,6 +29,8 @@ module.exports = LolomoGenerator;
 
 LolomoGenerator.prototype = {
     createLolomo(r, c, percentSimilar) {
+        percentSimilar = percentSimilar || 0;
+        
         const count = r * c;
         const id = this._getLolomoId();
         const rows = [];
@@ -47,7 +51,7 @@ LolomoGenerator.prototype = {
     },
 
     _getId() {
-        return startID + ++this._id;
+        return ++ID;
     },
 
     _getLolomoId(len) {

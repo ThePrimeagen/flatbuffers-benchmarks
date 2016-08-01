@@ -4,10 +4,12 @@ const assert = require('assert');
 
 const flatbuffers = require('./../flatbuffers').flatbuffers;
 const NetflixFBS = require('./lolomo_generated').Netflix;
+const Badging = NetflixFBS.Badging;
 
-function generate(lolomo, unique) {
+function generate(lolomo, unique, Builder) {
     // Convert to fbs.
-    const fbb = new flatbuffers.Builder(1);
+    let BuilderToUse = Builder || flatbuffers.Builder;
+    const fbb = new BuilderToUse(1);
     const rowIndices = [];
     const videosMap = {};
     const rows = lolomo.rows;
@@ -140,6 +142,14 @@ function createVideo(builder, video, listOfIndices) {
     Video.addMaturityRating(builder, video.maturityRating);
     Video.addStarRating(builder, video.starRating);
     Video.addYearCreated(builder, video.yearCreated);
+
+    let badgingValue = 0;
+    Object.keys(video.badging).forEach(function _applyKeys(k) {
+        if (video.badging[k]) {
+            badgingValue |= Badging[k];
+        }
+    });
+    Video.addBadging(builder, badgingValue);
 
     const nextIndex = Video.endVideo(builder);
     listOfIndices.push(nextIndex);

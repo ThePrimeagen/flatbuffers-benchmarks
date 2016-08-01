@@ -2,6 +2,8 @@ namespace Netflix;
 
 attribute "priority";
 enum Badging:byte (bit_flags) { HD = 0, UHD, Dolby5_1, Dolby7_1, HDR }
+
+attribute "priority";
 enum MaturityRating:short (bit_flags) {
     Y,
     PG,
@@ -25,7 +27,6 @@ table Video {
     starRating:byte;
     yearCreated:short;
     badging:Badging;
-    boxShotURL:string;
 }
 
 table Row {
