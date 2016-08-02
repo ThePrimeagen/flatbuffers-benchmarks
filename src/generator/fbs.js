@@ -110,10 +110,12 @@ const Row = NetflixFBS.Row;
 function createRow(builder, row, listOfVideoIndices, listOfRowIndices) {
 
     const titleOffset = builder.createString(row.title);
+    const idOffset = builder.createString(row.id);
     const videosIndex = Row.createVideosVector(builder, listOfVideoIndices);
 
     Row.startRow(builder);
     Row.addTitle(builder, titleOffset);
+    Row.addId(builder, idOffset);
     Row.addVideos(builder, videosIndex);
 
     const nextIndex = Row.endRow(builder);

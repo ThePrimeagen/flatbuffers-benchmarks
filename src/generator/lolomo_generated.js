@@ -321,12 +321,21 @@ Netflix.Row.prototype.title = function(optionalEncoding) {
 };
 
 /**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+Netflix.Row.prototype.id = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
  * @param {number} index
  * @param {Netflix.Video=} obj
  * @returns {Netflix.Video}
  */
 Netflix.Row.prototype.videos = function(index, obj) {
-  var offset = this.bb.__offset(this.bb_pos, 6);
+  var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? (obj || new Netflix.Video).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
 };
 
@@ -334,7 +343,7 @@ Netflix.Row.prototype.videos = function(index, obj) {
  * @returns {number}
  */
 Netflix.Row.prototype.videosLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 6);
+  var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -342,7 +351,7 @@ Netflix.Row.prototype.videosLength = function() {
  * @param {flatbuffers.Builder} builder
  */
 Netflix.Row.startRow = function(builder) {
-  builder.startObject(2);
+  builder.startObject(3);
 };
 
 /**
@@ -355,10 +364,18 @@ Netflix.Row.addTitle = function(builder, titleOffset) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} idOffset
+ */
+Netflix.Row.addId = function(builder, idOffset) {
+  builder.addFieldOffset(1, idOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} videosOffset
  */
 Netflix.Row.addVideos = function(builder, videosOffset) {
-  builder.addFieldOffset(1, videosOffset, 0);
+  builder.addFieldOffset(2, videosOffset, 0);
 };
 
 /**

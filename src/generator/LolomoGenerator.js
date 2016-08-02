@@ -2,6 +2,8 @@
 
 const DataGenerator = require('./DataGenerator');
 const randomListItem = require('./random').randomListItem;
+const fbs = require('./fbs');
+const json = require('./json');
 
 const startID = 8000000;
 const ROW_TITLE_LEN = 10;
@@ -30,9 +32,9 @@ module.exports = LolomoGenerator;
 LolomoGenerator.prototype = {
     createLolomo(r, c, percentSimilar) {
         percentSimilar = percentSimilar || 0;
-        
+
         const count = r * c;
-        const id = this._getLolomoId();
+        const id = this._generateId();
         const rows = [];
         for (let i = 0; i < r; ++i) {
             rows.push(this._createRow(c, percentSimilar));
@@ -42,6 +44,16 @@ LolomoGenerator.prototype = {
             rows: rows,
             id: id
         };
+    },
+
+    getLolomoAsFBS(r, c, percentSimilar, unique) {
+        const lolomo = this.createLolomo(r, c, percentSimilar);
+        return fbs(lolomo, unique);
+    },
+
+    getLolomoAsJSON(r, c, percentSimilar, unique) {
+        const lolomo = this.createLolomo(r, c, percentSimilar);
+        return json(lolomo, unique);
     },
 
     reset() {
@@ -54,7 +66,7 @@ LolomoGenerator.prototype = {
         return ++ID;
     },
 
-    _getLolomoId(len) {
+    _generateId(len) {
         len = len || 16;
         let str = '';
         for (let i = 0; i < len; ++i) {
@@ -127,6 +139,7 @@ LolomoGenerator.prototype = {
 
         return {
             title: title,
+            id: this._generateId(),
             videos: videos
         };
     }

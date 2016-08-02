@@ -26,6 +26,7 @@ function collapseLolomoAsFalcor(lolomo) {
         const videos = [];
         const outRow = {
             title: row.title,
+            id: row.id,
             videos: videos
         };
         rows.push(outRow);
