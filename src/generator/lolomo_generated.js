@@ -74,6 +74,21 @@ Netflix.Video.prototype.id = function() {
 };
 
 /**
+ * @param {number} value
+ * @returns {boolean}
+ */
+Netflix.Video.prototype.mutate_id = function(value) {
+  var offset = this.bb.__offset(this.bb_pos, 4)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeInt32(this.bb_pos + offset, value);
+  return true;
+}
+
+/**
  * @param {flatbuffers.Encoding=} optionalEncoding
  * @returns {string|Uint8Array}
  */
@@ -109,12 +124,42 @@ Netflix.Video.prototype.isOriginal = function() {
 };
 
 /**
+ * @param {boolean} value
+ * @returns {boolean}
+ */
+Netflix.Video.prototype.mutate_isOriginal = function(value) {
+  var offset = this.bb.__offset(this.bb_pos, 12)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeInt8(this.bb_pos + offset, value);
+  return true;
+}
+
+/**
  * @returns {boolean}
  */
 Netflix.Video.prototype.isSeason = function() {
   var offset = this.bb.__offset(this.bb_pos, 14);
   return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
 };
+
+/**
+ * @param {boolean} value
+ * @returns {boolean}
+ */
+Netflix.Video.prototype.mutate_isSeason = function(value) {
+  var offset = this.bb.__offset(this.bb_pos, 14)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeInt8(this.bb_pos + offset, value);
+  return true;
+}
 
 /**
  * @returns {boolean}
@@ -125,12 +170,42 @@ Netflix.Video.prototype.isMovie = function() {
 };
 
 /**
+ * @param {boolean} value
+ * @returns {boolean}
+ */
+Netflix.Video.prototype.mutate_isMovie = function(value) {
+  var offset = this.bb.__offset(this.bb_pos, 16)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeInt8(this.bb_pos + offset, value);
+  return true;
+}
+
+/**
  * @returns {number}
  */
 Netflix.Video.prototype.runningTime = function() {
   var offset = this.bb.__offset(this.bb_pos, 18);
   return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
 };
+
+/**
+ * @param {number} value
+ * @returns {boolean}
+ */
+Netflix.Video.prototype.mutate_runningTime = function(value) {
+  var offset = this.bb.__offset(this.bb_pos, 18)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeInt16(this.bb_pos + offset, value);
+  return true;
+}
 
 /**
  * @returns {Netflix.MaturityRating}
@@ -141,12 +216,42 @@ Netflix.Video.prototype.maturityRating = function() {
 };
 
 /**
+ * @param {Netflix.MaturityRating} value
+ * @returns {boolean}
+ */
+Netflix.Video.prototype.mutate_maturityRating = function(value) {
+  var offset = this.bb.__offset(this.bb_pos, 20)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeInt16(this.bb_pos + offset, value);
+  return true;
+}
+
+/**
  * @returns {number}
  */
 Netflix.Video.prototype.starRating = function() {
   var offset = this.bb.__offset(this.bb_pos, 22);
   return offset ? this.bb.readInt8(this.bb_pos + offset) : 0;
 };
+
+/**
+ * @param {number} value
+ * @returns {boolean}
+ */
+Netflix.Video.prototype.mutate_starRating = function(value) {
+  var offset = this.bb.__offset(this.bb_pos, 22)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeInt8(this.bb_pos + offset, value);
+  return true;
+}
 
 /**
  * @returns {number}
@@ -157,12 +262,42 @@ Netflix.Video.prototype.yearCreated = function() {
 };
 
 /**
+ * @param {number} value
+ * @returns {boolean}
+ */
+Netflix.Video.prototype.mutate_yearCreated = function(value) {
+  var offset = this.bb.__offset(this.bb_pos, 24)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeInt16(this.bb_pos + offset, value);
+  return true;
+}
+
+/**
  * @returns {Netflix.Badging}
  */
 Netflix.Video.prototype.badging = function() {
   var offset = this.bb.__offset(this.bb_pos, 26);
   return offset ? /** @type {Netflix.Badging} */ (this.bb.readInt8(this.bb_pos + offset)) : 0;
 };
+
+/**
+ * @param {Netflix.Badging} value
+ * @returns {boolean}
+ */
+Netflix.Video.prototype.mutate_badging = function(value) {
+  var offset = this.bb.__offset(this.bb_pos, 26)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeInt8(this.bb_pos + offset, value);
+  return true;
+}
 
 /**
  * @param {flatbuffers.Builder} builder
