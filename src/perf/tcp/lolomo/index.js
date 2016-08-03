@@ -1,7 +1,7 @@
 'use strict';
 
-const jsonResponder = require('./json-example');
-const fbsResponder = require('./fbs-example');
+const jsonResponder = require('./respond-json');
+const fbsResponder = require('./respond-fbs');
 const limiter = require('./../limiter');
 
 const PORT = process.env.PORT || 33000;

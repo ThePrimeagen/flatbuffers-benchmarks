@@ -1,14 +1,13 @@
 'use strict';
 
-const Hello = require('./hello_generated').Hello;
-const Hi = Hello.Hi;
-const Hellos = Hello.Hellos;
+const Generator = require('./../../generator');
+const LolomoGenerator = Generator.LolomoGenerator;
 const flatbuffers = require('./../../../flatbuffers').flatbuffers;
 const toBuffer = require('typedarray-to-buffer');
-const hiCount = process.env.HI_COUNT || 10;
+const ROWS = process.env.ROWS;
+const COLUMNS = process.env.COLUMNS;
 const percentToMutate = process.env.PERCENT_MUTATION || 0.25;
-const mutateAmount = Math.ceil(hiCount * percentToMutate);
-const DataGenerator = require('./../../../generator').DataGenerator;
+const mutateAmount = Math.ceil(ROWS * COLUMNS * percentToMutate);
 
 var _recieveFBS = function _recieveFBS(client, buffer) {
     let hello = null;

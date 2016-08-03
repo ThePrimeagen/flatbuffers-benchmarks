@@ -1,9 +1,11 @@
 # /usr/bin/env bash
-HI_COUNT=$1
+
+SCRIPT=$1
 PERCENT_MUTATION=$2
 
-if [ -z "$HI_COUNT" ]; then
-    HI_COUNT=10
+if [ -z "$SCRIPT" ]; then
+    echo "Please provide the path to the script to execute"
+    exit 1
 fi
 
 if [ -z "$PERCENT_MUTATION" ]; then
@@ -11,8 +13,9 @@ if [ -z "$PERCENT_MUTATION" ]; then
 fi
 
 time (export PERCENT_MUTATION=$PERCENT_MUTATION && \
-      export HI_COUNT=$HI_COUNT && \
-      export IS_JSON=false &&
+      export ROW=40 &&
+      export COLUMN=40 &&
+      export IS_JSON=true &&
       export IS_SERVER=false &&
       export MAX_COUNT=50000 &&
-      node index.js)
+      node $SCRIPT)
