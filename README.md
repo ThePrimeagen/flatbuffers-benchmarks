@@ -24,13 +24,14 @@ and forth between a client and server.  The client and server will mutate the `L
 
 ```bash
 // In one tab, you can run in background, but I like mine in foreground.
-node src/node/perf/tcp/lolomo/server.js
+time node src/node/perf/tcp/lolomo/server.js
 
 // In another tab
-node src/node/perf/tcp/lolomo/client.js
+time node src/node/perf/tcp/lolomo/client.js
 ```
 
 This will run the test with 300 operations (`--opsCount` argument to define a different value).
+On my Macbook air this takes 13+ seconds to complete.  There is no `console.log`ing that happens other than the computed `programArgs`.
 
 ##### Flatbuffers test
 
