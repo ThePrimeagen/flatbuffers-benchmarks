@@ -25,7 +25,6 @@ function _client(host, port, responder, reporter) {
 
     let start, end;
     const client = net.connect(opts, function _onClientConnection() {
-        start = process.hrtime();
         const clientFramer = new FramingStream(client);
 
         clientFramer.on('data', function _onClientData(chunk) {
@@ -34,10 +33,6 @@ function _client(host, port, responder, reporter) {
                 if (programArgs.report && reporter) {
                     reporter(chunk);
                 }
-
-                end = process.hrtime();
-                reportTime(start, end);
-                console.log('Final Chunk Size', chunk.length);
 
                 client.end();
             }
@@ -56,7 +51,7 @@ if (require.main === module) {
     let responder = programArgs.isJSON ?
         jsonResponder.responder : fbsResponder.responder;
 
-    responder = limiter(programArgs.maxCount, responder);
+    responder = limiter(programArgs.opsCount, responder);
 
     _client(programArgs.host, programArgs.port, responder, reporter);
 }

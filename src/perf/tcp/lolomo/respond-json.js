@@ -1,11 +1,11 @@
 'use strict';
 
-const hiCount = process.env.HI_COUNT || 10;
-const percentToMutate = process.env.PERCENT_MUTATION || 0.25;
-const mutateAmount = Math.ceil(hiCount * percentToMutate);
-const DataGenerator = require('./../../../generator').DataGenerator;
+const Generator = require('../../../generator');
+const LolomoGenerator = Generator.LolomoGenerator;
+const programArgs = require('../../../programArgs');
+const randomListItem = require('../../../generator/random').randomListItem;
 
-var _recieveJSON = function _recieveJSON(client, jsonOrBuffer) {
+const responder = function respondJSON(client, jsonOrBuffer) {
     let json = jsonOrBuffer;
 
     // create an object.
@@ -14,10 +14,15 @@ var _recieveJSON = function _recieveJSON(client, jsonOrBuffer) {
     }
 
     else if (!jsonOrBuffer) {
-        json = buildHellos();
+        const gen = new LolomoGenerator();
+        const rows = programArgs.rows;
+        const columns = programArgs.columns;
+        const percentSimilar = programArgs.percentSimilar;
+        const isGraph = programArgs.isGraph;
+        json = gen.getLolomoAsJSON(rows, columns, percentSimilar, isGraph);
     }
 
-    mutateRandomHi(json);
+    mutate(json);
     writeToClient(json, client);
 }
 
@@ -26,30 +31,8 @@ function report(chunk) {
 }
 
 module.exports = {
-    fn: _recieveJSON,
+    responder: responder,
     report: report
-}
-
-function buildHellos() {
-
-    const hiList = [];
-    const hellos = {
-        hiList: hiList
-    };
-    const gen = new DataGenerator();
-
-    for (let i = 0; i < hiCount; ++i) {
-        const convo = gen.getRandomString(250);
-        const hi = {
-            type: 'hello',
-            conversation: convo,
-            count: 1
-        };
-
-        hiList.push(hi);
-    }
-
-    return hellos;
 }
 
 function writeToClient(json, writer) {
@@ -64,13 +47,13 @@ function writeToClient(json, writer) {
     writer.write(outBuf);
 }
 
-function mutateRandomHi(hellos) {
+function mutate(json) {
 
-    const len = hellos.hiList.length;
-    for (let i = 0; i < mutateAmount; ++i) {
-        const rIndex = Math.floor(Math.random() * len);
-        const hi = hellos.hiList[rIndex];
+    const mutationCount = programArgs.mutationCount;
+    for (let i = 0; i < mutationCount; ++i) {
+        const row = randomListItem(json.rows);
+        const video = randomListItem(row.videos);
 
-        hi.count++;
+        video.runningTime += 1;
     }
 }

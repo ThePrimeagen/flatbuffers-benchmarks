@@ -83,7 +83,7 @@ function writeToClient(fbsObject, writer) {
 function buildLolomo() {
     const gen = new LolomoGenerator();
     return gen.getLolomoAsFBS(processArgs.rows, processArgs.columns,
-                              processArgs.percentSimilar);
+                              processArgs.percentSimilar, processArgs.isGraph);
 }
 
 /**

@@ -1,5 +1,6 @@
 const minimist = require('minimist');
 const args = minimist(process.argv.slice(2));
+
 const defaultArgs = Object.
     keys(args).
     reduce(function _assign(defaults, k) {
@@ -19,11 +20,12 @@ const defaultArgs = Object.
         columns: 75,
         percentSimilar: 0.1,
         isJSON: true,
-        maxCount: 50000,
+        opsCount: 100,
         host: 'localhost',
         port: 33333,
         mutationCount: 10,
-        report: false
+        report: false,
+        isGraph: false
     });
 
 module.exports = defaultArgs;
