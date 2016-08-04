@@ -7,9 +7,17 @@ const fs = require('fs');
 
 const FramingStream = require('./../FramingStream');
 const reportTime = require('./../reportTime');
-const REPORT = process.env.REPORT || false;
+const booleanFromProcess = require('../../../booleanFromProcess');
 
-module.exports = function _client(host, port, responder) {
+const jsonResponder = require('./respond-json');
+const fbsResponder = require('./respond-fbs');
+const limiter = require('./../limiter');
+const client = require('./client');
+const programArgs = require('../../../programArgs');
+
+console.log('Args', programArgs);
+
+function _client(host, port, responder, reporter) {
     const opts = {
         port: port,
         host: host
@@ -21,10 +29,10 @@ module.exports = function _client(host, port, responder) {
         const clientFramer = new FramingStream(client);
 
         clientFramer.on('data', function _onClientData(chunk) {
-            const res = responder.fn(client, chunk);
+            const res = responder(client, chunk);
             if (!res) {
-                if (REPORT && responder.report) {
-                    responder.report(chunk);
+                if (programArgs.report && reporter) {
+                    reporter(chunk);
                 }
 
                 end = process.hrtime();
@@ -35,28 +43,20 @@ module.exports = function _client(host, port, responder) {
             }
         });
 
-        responder.fn(clientFramer, null);
+        responder(clientFramer, null);
     });
 }
 
-const jsonResponder = require('./respond-json');
-const fbsResponder = require('./respond-fbs');
-const limiter = require('./../limiter');
-const client = require('./client');
-const server = require('./server');
-const booleanFromProcess = require('../../../booleanFromProcess');
-
-const PORT = process.env.PORT || 33000;
-const HOST = process.env.HOST || 'localhost';
-const IS_JSON = booleanFromProcess(process.env.IS_JSON, true);
-const MAX_COUNT = process.env.MAX_COUNT || 1000;
+module.exports = _client;
 
 // If this is a file that is ran, then open the client.
 if (require.main === module) {
-    let responder = IS_JSON ? jsonResponder.fn : fbsResponder.fn;
-    let reporter = IS_JSON ? jsonResponder.report : fbsResponder.report;
+    const reporter = programArgs.isJSON ?
+        jsonResponder.report : fbsResponder.report;
+    let responder = programArgs.isJSON ?
+        jsonResponder.responder : fbsResponder.responder;
 
-    responder = limiter(MAX_COUNT, responder);
-    
-    _client(HOST, PORT, {fn: responder, report: reporter});
+    responder = limiter(programArgs.maxCount, responder);
+
+    _client(programArgs.host, programArgs.port, responder, reporter);
 }

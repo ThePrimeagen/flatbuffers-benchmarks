@@ -26,6 +26,7 @@
   "homepage": "https://github.com/michaelbpaulson/fb-node-hello#readme",
   "dependencies": {
     "benchmark": "^2.1.1",
+    "minimist": "^1.2.0",
     "typedarray-to-buffer": "^3.1.2"
   }
 }

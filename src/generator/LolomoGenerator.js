@@ -1,5 +1,7 @@
 'use strict';
 
+const assert = require('assert');
+
 const DataGenerator = require('./DataGenerator');
 const randomListItem = require('./random').randomListItem;
 const fbs = require('./fbs');
@@ -104,7 +106,7 @@ LolomoGenerator.prototype = {
             isOriginal: this._getRandomBoolean(.1),
             isSeason: this._getRandomBoolean(.7),
             isMovie: this._getRandomBoolean(.3),
-            runningTime: this._generator.getRandomInt(32000), // ten hour movie
+            runningTime: 1, 
             maturityRating: randomListItem(maturityList),
             starRating: this._generator.getRandomInt(50, 1),
             yearCreated: this._generator.getRandomInt(2016, 1896),
@@ -143,4 +145,9 @@ LolomoGenerator.prototype = {
             videos: videos
         };
     }
+};
+
+LolomoGenerator.validate = function _validate(lolomo, fbsLolomo) {
+    assert(lolomo.id === fbsLolomo.id());
+    assert(lolomo.rows.length === fbsLolomo.rowsLength());
 };

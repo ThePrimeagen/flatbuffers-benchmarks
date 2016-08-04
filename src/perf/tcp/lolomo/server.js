@@ -11,20 +11,16 @@ const limiter = require('./../limiter');
 const client = require('./client');
 const server = require('./server');
 const booleanFromProcess = require('../../../booleanFromProcess');
+const programArgs = require('../../../programArgs');
 
-const PORT = process.env.PORT || 33000;
-const HOST = process.env.HOST || 'localhost';
-const IS_JSON = booleanFromProcess(process.env.IS_JSON, true);
-const MAX_COUNT = process.env.MAX_COUNT || 1000;
-
-module.exports = function createServer(host, port, responder) {
+function createServer(host, port, responder) {
     const server = net.
         createServer(function _onServerConnection(socket) {
 
             const framer = new FramingStream(socket);
             framer.
                 on('data', function _onClientData(chunk) {
-                    responder.fn(framer, chunk);
+                    responder(framer, chunk);
                 });
         }).
         on('error', function _onServerError(e) {
@@ -38,10 +34,11 @@ module.exports = function createServer(host, port, responder) {
     });
 };
 
+module.exports = createServer;
+
 // If this is a file that is ran, then open the client.
 if (require.main === module) {
-    let responder = IS_JSON ? jsonResponder.fn : fbsResponder.fn;
-    let reporter = IS_JSON ? jsonResponder.report : fbsResponder.report;
-
-    createServer(HOST, PORT, {fn: responder, report: reporter});
+    const responder = programArgs.isJSON ?
+        jsonResponder.responder : fbsResponder.responder;
+    createServer(programArgs.host, programArgs.port, responder);
 }

@@ -1,17 +1,14 @@
 'use strict';
 
-const Generator = require('./../../generator');
+const Generator = require('../../../generator');
 const LolomoGenerator = Generator.LolomoGenerator;
-const flatbuffers = require('./../../../flatbuffers').flatbuffers;
+const flatbuffers = require('../../../flatbuffers').flatbuffers;
 const toBuffer = require('typedarray-to-buffer');
 const random = require('../../../generator/random');
-const ROWS = process.env.ROWS;
-const COLUMNS = process.env.COLUMNS;
-const PERCENT_SIMILAR = process.env.PERCENT_SIMILAR;
-const MUTATION_COUNT = process.env.MUTATION_COUNT;
 const Lolomo = Generator.NetflixFBS.Lolomo;
+const processArgs = require('../../../programArgs');
 
-var _recieveFBS = function _recieveFBS(client, buffer) {
+function responder(client, buffer) {
     let lolomo = null;
 
     if (buffer) {
@@ -30,9 +27,12 @@ var _recieveFBS = function _recieveFBS(client, buffer) {
 }
 
 function report(chunk) {
+
     const lolomo = lolomoFromBuffer(chunk);
     const rLen = lolomo.rowsLength();
     const space = '   ';
+    const videoMap = {};
+    let countedValue = 0;
 
     console.log('Lolomo {');
 
@@ -43,22 +43,32 @@ function report(chunk) {
         const vLen = row.videosLength();
         console.log(space, space, 'title', row.title());
 
-        for (let j = 0; j < len; ++j) {
+        for (let j = 0; j < vLen; ++j) {
             console.log(space, space, 'Video {')
 
-            const video = row.videos(i);
+            const video = row.videos(j);
             console.log(space, space, space, 'title', video.title());
-            console.log(space, space, space, 'title', video.runningTime());
+            console.log(space, space, space, 'runningTime', video.runningTime());
+
+            if (videoMap[video.id()]) {
+                console.log('Match!', videoMap[video.id()], video.runningTime());
+            }
+
+            else {
+                videoMap[video.id()] = video.runningTime();
+            }
 
             console.log(space, space, '}')
         }
         console.log(space, '}')
     }
     console.log('}');
+
+    console.log('Total Count: ', Object.keys(videoMap).reduce(function _(x, y) { return x + videoMap[y]; }, 0));
 }
 
 module.exports = {
-    fn: _recieveFBS,
+    responder: responder,
     report: report
 }
 
@@ -72,7 +82,8 @@ function writeToClient(fbsObject, writer) {
 
 function buildLolomo() {
     const gen = new LolomoGenerator();
-    return gen.getLolomoAsFBS(ROWS, COLUMNS, PERCENT_SIMILAR);
+    return gen.getLolomoAsFBS(processArgs.rows, processArgs.columns,
+                              processArgs.percentSimilar);
 }
 
 /**
@@ -81,15 +92,16 @@ function buildLolomo() {
 function mutate(lolomo) {
 
     const rLength = lolomo.rowsLength();
-    for (let i = 0; i < MUTATION_COUNT; ++i) {
-        const lIndex = Math.floor(Math.random() * rLength);
+    for (let i = 0; i < processArgs.mutationCount; ++i) {
+        const rIndex = Math.floor(Math.random() * rLength);
         const row = lolomo.rows(rIndex);
 
         const vLength = row.videosLength();
         const vIndex = Math.floor(Math.random() * vLength);
-        const video = lolomo.videos(vIndex);
+        const video = row.videos(vIndex);
 
-        video.mutate_runningTime(video.runningTime() + 1);
+        const runningTime = video.runningTime();
+        video.mutate_runningTime(runningTime + 1);
     }
 }
 

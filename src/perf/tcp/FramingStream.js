@@ -73,6 +73,7 @@ FramingStream.prototype._frameData = function _frameData(chunk) {
 
             // Pass the remaining data to the next item.
             this.push(this._aggregate(remainingData));
+            this._buf = null;
         }
 
         // There is more than one message in this chunk.
