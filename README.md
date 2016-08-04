@@ -1,30 +1,50 @@
-# fb-node-hello
-This started off as a simple project to test serialization of JSON vs flatbuffers.  Then I went a little overboard.
+### FlatBuffers-Benchmarks
 
-### Start a server
-First start your server.  The server and client do the same thing except for the
-client terminates after MAX_COUNT attempts (which defaults to 50,000).
+My goal for this repo is to be a go to repo for benchmarks of flatbuffers.  I am
+currently focusing purely on Node as its my primary dev platform for the last couple
+of years.
 
-```bash
-# for flatbuffer server.  There are a lot env variables you can use to
-# listen different ports / host.
-./server_fbs.sh
+### Benchmarks for Node
 
-# For json instead
-./server_json.sh
-```
-
-### Start the client
-Then start a client like so.
+To get started run the following:
 
 ```bash
-# Samesies with env variables above except for these two included.
-./client_fbs.sh <HI_COUNT> <PERCENT_MUTATION>
+npm i
 ```
 
-`HI_COUNT` will be the amount of `Hi`s in the `Hellos`'s env.  
-`PERCENT_MUTATION` is the amount of `Hi`s that will be mutated per request or response.
+Once npm has been installed its easy to run any of the tests.
 
+#### TCP tests
+
+As of writing this readme there is only 1 tcp test.  Transfering `Lolomo`'s\* back
+and forth between a client and server.  The client and server will mutate the `Lolomo`'s
+`runningTime` based on `src/node/programArgs` default value or the arguments passed in.
+
+##### JSON Test
+
+```bash
+// In one tab, you can run in background, but I like mine in foreground.
+node src/node/perf/tcp/lolomo/server.js
+
+// In another tab
+node src/node/perf/tcp/lolomo/client.js
+```
+
+This will run the test with 300 operations (`--opsCount` argument to define a different value).
+
+##### Flatbuffers test
+
+Running the flatbuffer version is practically the same.
+
+
+```bash
+node src/node/perf/tcp/lolomo/server.js --isJSON=false
+
+...
+
+node src/node/perf/tcp/lolomo/client.js --isJSON=false
+```
 
 ### Contribution
-Feel free to contribute!
+
+Please do!
