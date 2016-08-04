@@ -1,4 +1,4 @@
 node_modules/
-src/sizing/results
+src/node/sizing/results
 .idea
 .DS_Store
