@@ -49,3 +49,8 @@ node src/node/perf/tcp/lolomo/client.js --isJSON=false
 ### Contribution
 
 Please do!
+
+
+### *
+
+\* - `Lolomo` I define that better on my blog about flatbuffers: [How to Flatbuffers](http://michaelbpaulson.github.io/flatbuffers/how-to-flatbuffers)
