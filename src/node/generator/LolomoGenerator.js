@@ -106,7 +106,7 @@ LolomoGenerator.prototype = {
             isOriginal: this._getRandomBoolean(.1),
             isSeason: this._getRandomBoolean(.7),
             isMovie: this._getRandomBoolean(.3),
-            runningTime: 1, 
+            runningTime: 1,
             maturityRating: randomListItem(maturityList),
             starRating: this._generator.getRandomInt(50, 1),
             yearCreated: this._generator.getRandomInt(2016, 1896),

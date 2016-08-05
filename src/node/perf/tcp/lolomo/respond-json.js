@@ -4,6 +4,8 @@ const Generator = require('../../../generator');
 const LolomoGenerator = Generator.LolomoGenerator;
 const programArgs = require('../../../programArgs');
 const randomListItem = require('../../../generator/random').randomListItem;
+const flatstr = require('flatstr');
+const jsonStringify = Generator.jsonStringify;
 
 const responder = function respondJSON(client, jsonOrBuffer) {
     let json = jsonOrBuffer;
@@ -36,7 +38,8 @@ module.exports = {
 }
 
 function writeToClient(json, writer) {
-    const jsonStr = JSON.stringify(json);
+    const jsonStr = flatstr(programArgs.fastJSON ? jsonStringify(json) :
+                                                   JSON.stringify(json));
     const buf = new Buffer(4);
     const bufStr = new Buffer(jsonStr);
 

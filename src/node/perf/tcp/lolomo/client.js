@@ -39,7 +39,7 @@ function _client(host, port, responder, reporter, complete) {
                 client.destroy();
 
                 if (complete) {
-                    complete(end);
+                    complete([chunk.length, end]);
                 }
             }
         }).

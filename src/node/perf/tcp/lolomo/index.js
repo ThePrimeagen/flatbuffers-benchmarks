@@ -10,7 +10,8 @@ const reportTime = require('./../reportTime');
 const jsonResponder = require('./respond-json');
 const fbsResponder = require('./respond-fbs');
 const limiter = require('../limiter');
-const type = programArgs.isJSON ? 'j' : 'b';
+const type = programArgs.isJSON ? (programArgs.fastJSON ? 'fjson' : 'json') : 'flatbuffers';
+const data = [];
 
 // We do not care if it was a success or not, because if it errors, its
 // because we have already created it.
@@ -29,16 +30,19 @@ fs.mkdir(results(), function _afterMkDir() {
             // naughty, naughty!
             programArgs.rows = rows;
 
-            client(host, port, getResponder(true), null, function _onComplete(time) {
+            client(host, port, getResponder(true), null, function _onComplete(d) {
+                const len = d[0];
+                const time = d[1];
                 const timeTakenMS = time[0] * 1000 + time[1] / 1000000;
-                fs.writeFileSync(results('client.' + rows), timeTakenMS);
+
+                data.push([len, timeTakenMS]);
 
                 console.log('client stopped', rows, timeTakenMS);
                 rows += rows === 1 ? 3 : 4;
 
                 // we only run up to 40 rows.
                 if (rows > 40) {
-                    console.log('Ending sim');
+                    fs.writeFileSync(results(['client', type, 'csv'].join('.')), data.join('\n'));
                     process.exit(0);
                 }
 
