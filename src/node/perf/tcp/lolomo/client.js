@@ -17,7 +17,7 @@ const programArgs = require('../../../programArgs');
 
 console.log('Args', programArgs);
 
-function _client(host, port, responder, reporter) {
+function _client(host, port, responder, reporter, complete) {
     const opts = {
         port: port,
         host: host
@@ -26,6 +26,7 @@ function _client(host, port, responder, reporter) {
     let start, end;
     const client = net.connect(opts, function _onClientConnection() {
         const clientFramer = new FramingStream(client);
+        start = process.hrtime();
 
         clientFramer.on('data', function _onClientData(chunk) {
             const res = responder(client, chunk);
@@ -33,9 +34,17 @@ function _client(host, port, responder, reporter) {
                 if (programArgs.report && reporter) {
                     reporter(chunk);
                 }
+                end = process.hrtime(start);
 
-                client.end();
+                client.destroy();
+
+                if (complete) {
+                    complete(end);
+                }
             }
+        }).
+        on('error', function _e(e) {
+            console.log('client.error', e);
         });
 
         responder(clientFramer, null);

@@ -13,7 +13,7 @@ const server = require('./server');
 const booleanFromProcess = require('../../../booleanFromProcess');
 const programArgs = require('../../../programArgs');
 
-function createServer(host, port, responder) {
+function createServer(host, port, responder, onServer) {
     const server = net.
         createServer(function _onServerConnection(socket) {
 
@@ -25,12 +25,18 @@ function createServer(host, port, responder) {
         }).
         on('error', function _onServerError(e) {
             console.log('error', e);
+        }).
+        on('complete', function _onCompleted() {
+            console.log('TCP Server connection completed');
         });
 
 
     // TODO: HOST?
-    server.listen(port, function _serverStart() {
-        console.log('server started');
+    server.listen(port, function _serverStart(e) {
+        console.log('server start', e);
+        if (onServer) {
+            onServer(e);
+        }
     });
 };
 
