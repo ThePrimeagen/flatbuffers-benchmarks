@@ -5,10 +5,10 @@ const path = require('path');
 
 const programArgs = require('../../../programArgs');
 const client = require('./client');
-const server = require('./server');
-const reportTime = require('./../reportTime');
-const jsonResponder = require('./respond-json');
-const fbsResponder = require('./respond-fbs');
+const server = require('../server');
+const reportTime = require('../reportTime');
+const jsonResponder = require('../lolomo/respond-json');
+const fbsResponder = require('../lolomo/respond-fbs');
 const limiter = require('../limiter');
 const type = programArgs.isJSON ? (programArgs.fastJSON ? 'fjson' : 'json') : 'flatbuffers';
 const data = [];

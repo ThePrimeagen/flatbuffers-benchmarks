@@ -5,14 +5,13 @@
 const net = require('net');
 const fs = require('fs');
 
-const FramingStream = require('./../FramingStream');
-const reportTime = require('./../reportTime');
+const FramingStream = require('../FramingStream');
+const reportTime = require('../reportTime');
 const booleanFromProcess = require('../../../booleanFromProcess');
 
-const jsonResponder = require('./respond-json');
-const fbsResponder = require('./respond-fbs');
-const limiter = require('./../limiter');
-const client = require('./client');
+const jsonResponder = require('../lolomo/respond-json');
+const fbsResponder = require('../lolomo/respond-fbs');
+const limiter = require('../limiter');
 const programArgs = require('../../../programArgs');
 
 console.log('Args', programArgs);
@@ -30,6 +29,7 @@ function _client(host, port, responder, reporter, complete) {
 
         clientFramer.on('data', function _onClientData(chunk) {
             const res = responder(client, chunk);
+            console.log('res', res);
             if (!res) {
                 if (programArgs.report && reporter) {
                     reporter(chunk);
@@ -39,7 +39,7 @@ function _client(host, port, responder, reporter, complete) {
                 client.destroy();
 
                 if (complete) {
-                    complete([chunk.length, end]);
+                    complete([chunk.length, end], chunk);
                 }
             }
         }).

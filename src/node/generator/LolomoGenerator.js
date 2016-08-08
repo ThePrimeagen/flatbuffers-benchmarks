@@ -6,6 +6,8 @@ const DataGenerator = require('./DataGenerator');
 const randomListItem = require('./random').randomListItem;
 const fbs = require('./fbs');
 const json = require('./json');
+const LolomoRequest = require('./lolomo-request_generated').Netflix.LolomoRequest;
+const flatbuffers = require('../flatbuffers');
 
 const startID = 8000000;
 const ROW_TITLE_LEN = 10;
@@ -63,6 +65,7 @@ LolomoGenerator.prototype = {
         this._generator.reset();
         this._createVideo();
     },
+
 
     _getId() {
         return ++ID;
@@ -147,7 +150,73 @@ LolomoGenerator.prototype = {
     }
 };
 
-LolomoGenerator.validate = function _validate(lolomo, fbsLolomo) {
-    assert(lolomo.id === fbsLolomo.id());
-    assert(lolomo.rows.length === fbsLolomo.rowsLength());
+LolomoGenerator.createRequest = function _request(clientId, rows,
+    columns, percentSimilar,
+    isGraph, isJSON) {
+
+
+    if (isJSON) {
+        return {
+            rows: rows,
+            columns: columns,
+            percentSimilar: percentSimilar,
+            isGraph: isGraph,
+            clientId: clientId
+        };
+    }
+    const bb = new flatbuffers.Builder(20);
+    LolomoRequest.startLolomoRequest(bb);
+    LolomoRequest.addClientId(bb, clientId);
+    LolomoRequest.addRows(bb, rows);
+    LolomoRequest.addColumns(bb, columns);
+    LolomoRequest.addPercentSimilar(bb, percentSimilar);
+    LolomoRequest.addIsGraph(bb, isGraph);
+
+    const idx = LolomoRequest.endLolomoRequest(bb);
+    LolomoRequest.finishLolomoRequestBuffer(bb, idx);
+
+    return fbb.asUint8Array();
+}
+
+
+/**
+ * Attempts to print out the lolomo FBS.
+ */
+LolomoGenerator.printFBS = function printFBS(lolomo) {
+    const rLen = lolomo.rowsLength();
+    const space = '   ';
+    const videoMap = {};
+    let countedValue = 0;
+
+    console.log('Lolomo {');
+
+    for (let i = 0; i < rLen; ++i) {
+        console.log(space, 'Row {')
+
+        const row = lolomo.rows(i);
+        const vLen = row.videosLength();
+        console.log(space, space, 'title', row.title());
+
+        for (let j = 0; j < vLen; ++j) {
+            console.log(space, space, 'Video {')
+
+            const video = row.videos(j);
+            console.log(space, space, space, 'title', video.title());
+            console.log(space, space, space, 'runningTime', video.runningTime());
+
+            if (videoMap[video.id()]) {
+                console.log('Match!', videoMap[video.id()], video.runningTime());
+            }
+
+            else {
+                videoMap[video.id()] = video.runningTime();
+            }
+
+            console.log(space, space, '}')
+        }
+        console.log(space, '}')
+    }
+    console.log('}');
+
+    console.log('Total Count: ', Object.keys(videoMap).reduce(function _(x, y) { return x + videoMap[y]; }, 0));
 };

@@ -4,6 +4,7 @@ module.exports = function limiter(maxCount, fn) {
     let count = 0;
     return function _limiter() {
 
+        console.log('count', count, maxCount, count < maxCount);
         if (count < maxCount) {
             count++;
 
@@ -11,6 +12,7 @@ module.exports = function limiter(maxCount, fn) {
             return true;
         }
 
+        console.log('false');
         return false;
     };
 };

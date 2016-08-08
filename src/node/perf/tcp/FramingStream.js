@@ -8,7 +8,7 @@ const FramingStream = function _FramingStream(parentStream) {
 
     this._buf = null;
     this._len = 0;
-    this._totalLen = 0;
+    this._totalLength = 0;
     this._parentStream = parentStream;
 
     const self = this;
@@ -96,6 +96,7 @@ FramingStream.prototype._initializeAggregator = function _initAgg(chunk, start) 
 };
 
 FramingStream.prototype._aggregate = function _aggregate(buf) {
+    console.log('Pushing', this._buf && this._buf.length, buf.length);
     if (this._buf) {
         return Buffer.concat([this._buf, buf]);
     }

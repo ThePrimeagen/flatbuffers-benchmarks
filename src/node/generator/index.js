@@ -5,5 +5,6 @@ module.exports = {
     jsonStringify: require('./lolomo.json-schema'),
     fbs: require('./fbs'),
     flatbuffers: require('./../flatbuffers').flatbuffers,
-    NetflixFBS: require('./lolomo_generated').Netflix
+    NetflixFBS: require('./lolomo_generated').Netflix,
+    LolomoRequest: require('./lolomo-request_generated').Netflix.LolomoRequest
 };

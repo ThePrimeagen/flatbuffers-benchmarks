@@ -1,0 +1,11 @@
+namespace Netflix;
+
+table LolomoRequest {
+    clientId:byte;
+    rows:byte;
+    columns:byte;
+    percentSimilar:bool;
+    isGraph:bool;
+}
+
+root_type LolomoRequest;

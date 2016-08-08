@@ -24,6 +24,7 @@ const defaultArgs = Object.
         host: 'localhost',
         port: 33333,
         mutationCount: 10,
+        clientId: 1,
         report: false,
         isGraph: false
     });

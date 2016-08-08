@@ -1,5 +1,6 @@
 node_modules/
 src/node/sizing/results
 src/node/perf/tcp/lolomo/results
+src/node/perf/tcp/test/results
 .idea
 .DS_Store

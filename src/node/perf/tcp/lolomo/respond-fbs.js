@@ -27,44 +27,8 @@ function responder(client, buffer) {
 }
 
 function report(chunk) {
-
     const lolomo = lolomoFromBuffer(chunk);
-    const rLen = lolomo.rowsLength();
-    const space = '   ';
-    const videoMap = {};
-    let countedValue = 0;
-
-    console.log('Lolomo {');
-
-    for (let i = 0; i < rLen; ++i) {
-        console.log(space, 'Row {')
-
-        const row = lolomo.rows(i);
-        const vLen = row.videosLength();
-        console.log(space, space, 'title', row.title());
-
-        for (let j = 0; j < vLen; ++j) {
-            console.log(space, space, 'Video {')
-
-            const video = row.videos(j);
-            console.log(space, space, space, 'title', video.title());
-            console.log(space, space, space, 'runningTime', video.runningTime());
-
-            if (videoMap[video.id()]) {
-                console.log('Match!', videoMap[video.id()], video.runningTime());
-            }
-
-            else {
-                videoMap[video.id()] = video.runningTime();
-            }
-
-            console.log(space, space, '}')
-        }
-        console.log(space, '}')
-    }
-    console.log('}');
-
-    console.log('Total Count: ', Object.keys(videoMap).reduce(function _(x, y) { return x + videoMap[y]; }, 0));
+    LolomoGenerator.printFBS(lolomo);
 }
 
 module.exports = {

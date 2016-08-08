@@ -4,14 +4,9 @@
 // TCP packets.
 const net = require('net');
 
-const FramingStream = require('./../FramingStream');
-const jsonResponder = require('./respond-json');
-const fbsResponder = require('./respond-fbs');
-const limiter = require('./../limiter');
-const client = require('./client');
-const server = require('./server');
-const booleanFromProcess = require('../../../booleanFromProcess');
-const programArgs = require('../../../programArgs');
+const FramingStream = require('./FramingStream');
+const booleanFromProcess = require('../../booleanFromProcess');
+const programArgs = require('../../programArgs');
 
 function createServer(host, port, responder, onServer) {
     const server = net.
@@ -21,6 +16,9 @@ function createServer(host, port, responder, onServer) {
             framer.
                 on('data', function _onClientData(chunk) {
                     responder(framer, chunk);
+                }).
+                on('error', function _error(e) {
+                    console.log('framer#Error', e);
                 });
         }).
         on('error', function _onServerError(e) {
@@ -41,10 +39,3 @@ function createServer(host, port, responder, onServer) {
 };
 
 module.exports = createServer;
-
-// If this is a file that is ran, then open the client.
-if (require.main === module) {
-    const responder = programArgs.isJSON ?
-        jsonResponder.responder : fbsResponder.responder;
-    createServer(programArgs.host, programArgs.port, responder);
-}
