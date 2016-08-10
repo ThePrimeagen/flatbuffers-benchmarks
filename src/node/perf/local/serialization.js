@@ -1,4 +1,4 @@
-const Generator = require('./../../generator');
+const Generator = require('./../../data');
 const LolomoGenerator = Generator.LolomoGenerator;
 const flatbuffers = Generator.flatbuffers;
 const Netflix = Generator.NetflixFBS;

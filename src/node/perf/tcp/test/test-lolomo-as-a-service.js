@@ -3,7 +3,7 @@ const runLolomoAsService = require('./run-lolomo-as-a-service');
 const AsAService = require('../AsAService');
 const programArgs = require('../../../programArgs');
 const limiter = require('../limiter');
-const Generator = require('../../../generator');
+const Generator = require('../../../data');
 const LolomoGenerator = Generator.LolomoGenerator;
 
 const host = programArgs.host;

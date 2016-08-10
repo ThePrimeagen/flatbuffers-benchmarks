@@ -1,0 +1,8 @@
+namespace Netflix;
+
+table RatingsRequest {
+    clientId:byte;
+    videoId:uint;
+}
+
+root_type RatingsRequest;

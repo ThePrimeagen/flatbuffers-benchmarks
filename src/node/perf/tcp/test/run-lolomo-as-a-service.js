@@ -1,6 +1,6 @@
 'use strict';
 
-const lolomoAsAService = require('../lolomo/lolomo-as-service');
+const lolomoAsAService = require('../lolomo');
 const server = require('../server');
 const programArgs = require('../../../programArgs');
 

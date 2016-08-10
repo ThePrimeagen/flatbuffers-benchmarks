@@ -96,7 +96,6 @@ FramingStream.prototype._initializeAggregator = function _initAgg(chunk, start) 
 };
 
 FramingStream.prototype._aggregate = function _aggregate(buf) {
-    console.log('Pushing', this._buf && this._buf.length, buf.length);
     if (this._buf) {
         return Buffer.concat([this._buf, buf]);
     }

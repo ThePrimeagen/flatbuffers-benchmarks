@@ -1,9 +1,9 @@
 'use strict';
 
-const Generator = require('../../../generator');
+const Generator = require('../../../data/index');
 const LolomoGenerator = Generator.LolomoGenerator;
 const programArgs = require('../../../programArgs');
-const randomListItem = require('../../../generator/random').randomListItem;
+const randomListItem = require('../../../data/random').randomListItem;
 const flatstr = require('flatstr');
 const jsonStringify = Generator.jsonStringify;
 

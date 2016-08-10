@@ -1,10 +1,10 @@
 'use strict';
 
-const Generator = require('../../../generator');
+const Generator = require('../../../data/index');
 const LolomoGenerator = Generator.LolomoGenerator;
 const flatbuffers = require('../../../flatbuffers').flatbuffers;
 const toBuffer = require('typedarray-to-buffer');
-const random = require('../../../generator/random');
+const random = require('../../../data/random');
 const Lolomo = Generator.NetflixFBS.Lolomo;
 const processArgs = require('../../../programArgs');
 
