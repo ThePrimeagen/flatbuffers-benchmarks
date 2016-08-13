@@ -1,23 +1,22 @@
 'use strict';
 
-const Generator = require('../../../data');
-const LolomoGenerator = Generator.LolomoGenerator;
 const flatbuffers = require('../../../flatbuffers').flatbuffers;
+const RatingsRequest = require('../../../data/ratings-request_generated').Netflix.RatingsRequest;
 const AsAService = require('../AsAService');
 const random = require('../../../data/random');
-const Lolomo = Generator.NetflixFBS.Lolomo;
-const LolomoRequest = Generator.LolomoRequest;
-const lolomoCache = {};
+const videoRatingCache = {};
+const Cache = require('../Cache');
+const cache = new Cache();
 
 function responder(client, buffer) {
     const isJSON = AsAService.isJSONRequest(buffer);
-    const lolomoRequest = AsAService.parse(buffer, Lolomo.getRootAsLolomo);
+    const ratingsRequest = AsAService.parse(buffer, RatingsRequest.getRootAsLolomo);
     const clientId = isJSON ? lolomoRequest.clientId : lolomoRequest.clientId();
-    let data = getCache(clientId);
+    let data = cache.get(clientId, );
 
     if (!data) {
-        data = buildLolomo(lolomoRequest, isJSON);
-        insertIntoCache(data, clientId, isJSON);
+        data = fillRequest(ratingsRequest)
+        cache.insert(clientId, data, isJSON);
     }
 
     const outBuf = toBuffer(data, isJSON);
@@ -25,25 +24,6 @@ function responder(client, buffer) {
 }
 
 module.exports = responder;
-
-function getCache(clientId, isJSON) {
-    const clientCache = lolomoCache[clientId];
-    if (clientCache) {
-        return isJSON ? clientCache.json : clientCache.fbs;
-    }
-    return null;
-}
-
-function insertIntoCache(data, clientId, isJSON) {
-    let cache = lolomoCache[clientId];
-    if (!cache) {
-        cache = lolomoCache[clientId] = {};
-    }
-
-    const key = isJSON ? 'json' : 'fbs';
-    console.log('client', cache[key]);
-    cache[key] = data;
-}
 
 function toBuffer(lolomo, isJSON) {
     if (isJSON) {
@@ -53,19 +33,13 @@ function toBuffer(lolomo, isJSON) {
     return new Buffer(lolomo);
 }
 
-function buildLolomo(request, isJSON) {
-    const gen = new LolomoGenerator();
-    const rows = isJSON ? request.rows : request.rows();
-    const columns = isJSON ? request.columns : request.columns();
-    const percentSimilar = isJSON ?
-        request.percentSimilar : request.percentSimilar();
-    const isGraph = isJSON ? request.isGraph : request.isGraph();
-
-    let buffer = null;
-    if (isJSON) {
-        return gen.getLolomoAsJSON(rows, columns, percentSimilar, isGraph);
+function fillRequest(request, clientId, isJSON) {
+    let videoMap = cache.get(clientId);
+    if (!videoMap) {
+        videoMap = {};
+        cache.insert(clientId, undefined, videoMap);
     }
-    const bytes = gen.getLolomoAsFBS(rows, columns, percentSimilar, isGraph);
-    return bytes;
+    
+    // Create request.
 }
 

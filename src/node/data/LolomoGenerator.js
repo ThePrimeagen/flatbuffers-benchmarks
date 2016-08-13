@@ -7,7 +7,7 @@ const randomListItem = require('./random').randomListItem;
 const fbs = require('./fbs');
 const json = require('./json');
 const LolomoRequest = require('./lolomo-request_generated').Netflix.LolomoRequest;
-const flatbuffers = require('../flatbuffers');
+const flatbuffers = require('../flatbuffers').flatbuffers;
 
 const startID = 8000000;
 const ROW_TITLE_LEN = 10;
@@ -151,9 +151,8 @@ LolomoGenerator.prototype = {
 };
 
 LolomoGenerator.createRequest = function _request(clientId, rows,
-    columns, percentSimilar,
-    isGraph, isJSON) {
-
+                                                  columns, percentSimilar,
+                                                  isGraph, isJSON) {
 
     if (isJSON) {
         return {
@@ -164,6 +163,7 @@ LolomoGenerator.createRequest = function _request(clientId, rows,
             clientId: clientId
         };
     }
+    
     const bb = new flatbuffers.Builder(20);
     LolomoRequest.startLolomoRequest(bb);
     LolomoRequest.addClientId(bb, clientId);
@@ -175,8 +175,8 @@ LolomoGenerator.createRequest = function _request(clientId, rows,
     const idx = LolomoRequest.endLolomoRequest(bb);
     LolomoRequest.finishLolomoRequestBuffer(bb, idx);
 
-    return fbb.asUint8Array();
-}
+    return bb.asUint8Array();
+};
 
 
 /**

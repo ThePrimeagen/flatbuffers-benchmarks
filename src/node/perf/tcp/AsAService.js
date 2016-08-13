@@ -1,6 +1,6 @@
 'use strict';
 
-const flatbuffers = require('../../flatbuffers');
+const flatbuffers = require('../../flatbuffers').flatbuffers;
 
 function isJSONRequest(buf) {
     return buf.readUInt8(0) === 1;

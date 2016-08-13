@@ -5,19 +5,20 @@ const LolomoGenerator = Generator.LolomoGenerator;
 const flatbuffers = require('../../../flatbuffers').flatbuffers;
 const AsAService = require('../AsAService');
 const random = require('../../../data/random');
-const Lolomo = Generator.NetflixFBS.Lolomo;
 const LolomoRequest = Generator.LolomoRequest;
-const lolomoCache = {};
+const Cache = require('../Cache');
+const cache = new Cache();
 
 function responder(client, buffer) {
     const isJSON = AsAService.isJSONRequest(buffer);
-    const lolomoRequest = AsAService.parse(buffer, Lolomo.getRootAsLolomo);
+    const lolomoRequest = AsAService.parse(buffer, LolomoRequest.getRootAsLolomoRequest);
     const clientId = isJSON ? lolomoRequest.clientId : lolomoRequest.clientId();
-    let data = getCache(clientId);
-
+    const type = getJSONOrFBSKey(isJSON);
+    let data = cache.get(clientId, type);
+    
     if (!data) {
         data = buildLolomo(lolomoRequest, isJSON);
-        insertIntoCache(data, clientId, isJSON);
+        cache.insert(clientId, type, data);
     }
 
     const outBuf = toBuffer(data, isJSON);
@@ -25,25 +26,6 @@ function responder(client, buffer) {
 }
 
 module.exports = responder;
-
-function getCache(clientId, isJSON) {
-    const clientCache = lolomoCache[clientId];
-    if (clientCache) {
-        return isJSON ? clientCache.json : clientCache.fbs;
-    }
-    return null;
-}
-
-function insertIntoCache(data, clientId, isJSON) {
-    let cache = lolomoCache[clientId];
-    if (!cache) {
-        cache = lolomoCache[clientId] = {};
-    }
-
-    const key = isJSON ? 'json' : 'fbs';
-    console.log('client', cache[key]);
-    cache[key] = data;
-}
 
 function toBuffer(lolomo, isJSON) {
     if (isJSON) {
@@ -69,3 +51,6 @@ function buildLolomo(request, isJSON) {
     return bytes;
 }
 
+function getJSONOrFBSKey(isJSON) {
+    return isJSON ? 'json' : 'fbs';
+}

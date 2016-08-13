@@ -50,11 +50,28 @@ Netflix.RatingsRequest.prototype.clientId = function() {
 };
 
 /**
+ * @param {number} index
  * @returns {number}
  */
-Netflix.RatingsRequest.prototype.videoId = function() {
+Netflix.RatingsRequest.prototype.videoId = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
+  return offset ? this.bb.readUint32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+Netflix.RatingsRequest.prototype.videoIdLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Uint32Array}
+ */
+Netflix.RatingsRequest.prototype.videoIdArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? new Uint32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -74,10 +91,31 @@ Netflix.RatingsRequest.addClientId = function(builder, clientId) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {number} videoId
+ * @param {flatbuffers.Offset} videoIdOffset
  */
-Netflix.RatingsRequest.addVideoId = function(builder, videoId) {
-  builder.addFieldInt32(1, videoId, 0);
+Netflix.RatingsRequest.addVideoId = function(builder, videoIdOffset) {
+  builder.addFieldOffset(1, videoIdOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+Netflix.RatingsRequest.createVideoIdVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+Netflix.RatingsRequest.startVideoIdVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
 };
 
 /**
