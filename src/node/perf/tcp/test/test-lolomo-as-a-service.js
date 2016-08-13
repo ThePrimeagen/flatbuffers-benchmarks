@@ -35,6 +35,7 @@ function respondToServer(writer, chunk) {
     const clientId = programArgs.clientId;
     const request = LolomoGenerator.createRequest(
         clientId, rows, columns, percentSimilar, isGraph, isJSON);
+    
     const buffer = isJSON ? new Buffer(JSON.stringify(request)) :
                             new Buffer(request);
 

@@ -8,6 +8,7 @@ const fbs = require('./fbs');
 const json = require('./json');
 const LolomoRequest = require('./lolomo-request_generated').Netflix.LolomoRequest;
 const flatbuffers = require('../flatbuffers').flatbuffers;
+const Lolomo = require('./lolomo_generated').Netflix.Lolomo;
 
 const startID = 8000000;
 const ROW_TITLE_LEN = 10;
@@ -219,4 +220,15 @@ LolomoGenerator.printFBS = function printFBS(lolomo) {
     console.log('}');
 
     console.log('Total Count: ', Object.keys(videoMap).reduce(function _(x, y) { return x + videoMap[y]; }, 0));
+};
+
+LolomoGenerator.printLolomoRequest = function printLolomoRequest(reqOrInt8) {
+    let request = reqOrInt8;
+    if (request instanceof Uint8Array) {
+        request = LolomoRequest.getRootAsLolomoRequest(new flatbuffers.ByteBuffer(request));
+    }
+    
+    console.log('rows', request.rows());
+    console.log('columns', request.columns());
+    console.log('isGraph', request.isGraph());
 };

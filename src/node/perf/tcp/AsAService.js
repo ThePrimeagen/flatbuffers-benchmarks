@@ -30,11 +30,12 @@ const AsAService = module.exports = {
             return JSON.parse(dataBuffer.toString());
         }
 
-        const ab = buf.buffer.
-                slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
-        const int8array = new Uint8Array(buf.buffer,
-                                         buf.byteOffset,
-                                         buf.byteLength);
+        const totalLength = dataBuffer.byteOffset + dataBuffer.byteLength;
+        const ab = dataBuffer.buffer.slice(dataBuffer.byteOffset, totalLength);
+        const int8array = new Uint8Array(dataBuffer.buffer,
+                                         dataBuffer.byteOffset,
+                                         dataBuffer.byteLength);
+
         return rootFunction(new flatbuffers.ByteBuffer(int8array));
     }
 };
