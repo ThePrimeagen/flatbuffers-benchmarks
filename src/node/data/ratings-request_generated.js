@@ -53,7 +53,7 @@ Netflix.RatingsRequest.prototype.clientId = function() {
  * @param {number} index
  * @returns {number}
  */
-Netflix.RatingsRequest.prototype.videoId = function(index) {
+Netflix.RatingsRequest.prototype.videos = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.readUint32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -61,7 +61,7 @@ Netflix.RatingsRequest.prototype.videoId = function(index) {
 /**
  * @returns {number}
  */
-Netflix.RatingsRequest.prototype.videoIdLength = function() {
+Netflix.RatingsRequest.prototype.videosLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -69,7 +69,7 @@ Netflix.RatingsRequest.prototype.videoIdLength = function() {
 /**
  * @returns {Uint32Array}
  */
-Netflix.RatingsRequest.prototype.videoIdArray = function() {
+Netflix.RatingsRequest.prototype.videosArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? new Uint32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -91,10 +91,10 @@ Netflix.RatingsRequest.addClientId = function(builder, clientId) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} videoIdOffset
+ * @param {flatbuffers.Offset} videosOffset
  */
-Netflix.RatingsRequest.addVideoId = function(builder, videoIdOffset) {
-  builder.addFieldOffset(1, videoIdOffset, 0);
+Netflix.RatingsRequest.addVideos = function(builder, videosOffset) {
+  builder.addFieldOffset(1, videosOffset, 0);
 };
 
 /**
@@ -102,7 +102,7 @@ Netflix.RatingsRequest.addVideoId = function(builder, videoIdOffset) {
  * @param {Array.<number>} data
  * @returns {flatbuffers.Offset}
  */
-Netflix.RatingsRequest.createVideoIdVector = function(builder, data) {
+Netflix.RatingsRequest.createVideosVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -114,7 +114,7 @@ Netflix.RatingsRequest.createVideoIdVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-Netflix.RatingsRequest.startVideoIdVector = function(builder, numElems) {
+Netflix.RatingsRequest.startVideosVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 

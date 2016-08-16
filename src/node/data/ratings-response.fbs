@@ -1,0 +1,8 @@
+namespace Netflix;
+
+table RatingsResponse {
+    ratings:[ubyte];
+    clientId:uint;
+}
+
+root_type RatingsResponse;

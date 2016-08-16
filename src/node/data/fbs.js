@@ -48,7 +48,7 @@ generate.print = function printTestLolomo(testLolomo) {
         }
         console.log('    ', ']');
     }
-}
+};
 
 generate.compare = function compareJSONToFB(lolomo, testLolomo) {
     assert(lolomo.id === testLolomo.id());
@@ -73,7 +73,7 @@ generate.compare = function compareJSONToFB(lolomo, testLolomo) {
             assert(video.id() === jsonVideo.id);
         }
     }
-}
+};
 
 function fillVideos(builder, videos, unique, videosMap) {
     const videoIndices = [];

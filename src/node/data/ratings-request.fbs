@@ -2,7 +2,7 @@ namespace Netflix;
 
 table RatingsRequest {
     clientId:byte;
-    videoId:[uint];
+    videos:[uint];
 }
 
 root_type RatingsRequest;

@@ -24,11 +24,10 @@ const maturityList = [
     "NR"
 ];
 
-let ID = 8000000;
-
 const LolomoGenerator = function LolomoGenerator() {
     this._cache = [];
     this._generator = new DataGenerator();
+    this._id = startID;
     this._createVideo();
 };
 
@@ -69,7 +68,7 @@ LolomoGenerator.prototype = {
 
 
     _getId() {
-        return ++ID;
+        return ++this._id;
     },
 
     _generateId(len) {
@@ -199,7 +198,7 @@ LolomoGenerator.printFBS = function printFBS(lolomo) {
         console.log(space, space, 'title', row.title());
 
         for (let j = 0; j < vLen; ++j) {
-            console.log(space, space, 'Video {')
+            console.log(space, space, 'Video {');
 
             const video = row.videos(j);
             console.log(space, space, space, 'title', video.title());
