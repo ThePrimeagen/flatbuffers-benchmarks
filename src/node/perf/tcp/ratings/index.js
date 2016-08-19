@@ -2,19 +2,16 @@
 
 const flatbuffers = require('../../../flatbuffers').flatbuffers;
 const RatingsRequest = require('../../../data/ratings-request_generated').Netflix.RatingsRequest;
-const RatingsResponse = require('../../../data/ratings-request_generated').Netflix.RatingsResponse;
+const RatingsResponse = require('../../../data/ratings-response_generated').Netflix.RatingsResponse;
 const AsAService = require('../AsAService');
 const random = require('../../../data/random').random;
 const Cache = require('../Cache');
 const cache = new Cache();
 
 function responder(client, buffer) {
-    console.log('boom');
     const isJSON = AsAService.isJSONRequest(buffer);
-    const ratingsRequest = AsAService.parse(buffer, RatingsRequest.getRootAsLolomo);
-    console.log('ratingsRequest', ratingsRequest);
+    const ratingsRequest = AsAService.parse(buffer, RatingsRequest.getRootAsRatingsRequest);
     const clientId = isJSON ? ratingsRequest.clientId : ratingsRequest.clientId();
-    console.log('clientId', clientId);
     const data = fillRequest(ratingsRequest, clientId, isJSON);
     const outBuf = toBuffer(data, isJSON);
     
@@ -59,7 +56,8 @@ function fillRequest(request, clientId, isJSON) {
     
     if (isJSON) {
         return {
-            ratings: videoRatings
+            ratings: videoRatings,
+            clientId: clientId
         };
     }
     
@@ -67,7 +65,8 @@ function fillRequest(request, clientId, isJSON) {
     const vOffset = RatingsResponse.createRatingsVector(bb, videoRatings);
     
     RatingsResponse.startRatingsResponse(bb);
-    RatingsResponse.addVideos(bb, vOffset);
+    RatingsResponse.addRatings(bb, vOffset);
+    RatingsResponse.addClientId(bb, clientId);
     const offset = RatingsResponse.endRatingsResponse(bb);
     RatingsResponse.finishRatingsResponseBuffer(bb, offset);
     

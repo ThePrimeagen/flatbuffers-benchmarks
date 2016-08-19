@@ -588,12 +588,35 @@ Netflix.Lolomo.prototype.id = function(optionalEncoding) {
 };
 
 /**
+ * @returns {number}
+ */
+Netflix.Lolomo.prototype.clientId = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.readInt8(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {number} value
+ * @returns {boolean}
+ */
+Netflix.Lolomo.prototype.mutate_clientId = function(value) {
+  var offset = this.bb.__offset(this.bb_pos, 6)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeInt8(this.bb_pos + offset, value);
+  return true;
+}
+
+/**
  * @param {number} index
  * @param {Netflix.Row=} obj
  * @returns {Netflix.Row}
  */
 Netflix.Lolomo.prototype.rows = function(index, obj) {
-  var offset = this.bb.__offset(this.bb_pos, 6);
+  var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? (obj || new Netflix.Row).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
 };
 
@@ -601,7 +624,7 @@ Netflix.Lolomo.prototype.rows = function(index, obj) {
  * @returns {number}
  */
 Netflix.Lolomo.prototype.rowsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 6);
+  var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -609,7 +632,7 @@ Netflix.Lolomo.prototype.rowsLength = function() {
  * @param {flatbuffers.Builder} builder
  */
 Netflix.Lolomo.startLolomo = function(builder) {
-  builder.startObject(2);
+  builder.startObject(3);
 };
 
 /**
@@ -622,10 +645,18 @@ Netflix.Lolomo.addId = function(builder, idOffset) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {number} clientId
+ */
+Netflix.Lolomo.addClientId = function(builder, clientId) {
+  builder.addFieldInt8(1, clientId, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} rowsOffset
  */
 Netflix.Lolomo.addRows = function(builder, rowsOffset) {
-  builder.addFieldOffset(1, rowsOffset, 0);
+  builder.addFieldOffset(2, rowsOffset, 0);
 };
 
 /**

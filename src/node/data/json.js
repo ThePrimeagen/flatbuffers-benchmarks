@@ -17,6 +17,7 @@ function collapseLolomoAsFalcor(lolomo) {
     const videoGraph = {};
     const falcorIsh = {
         id: lolomo.id,
+        clientId: lolomo.clientId,
         rows: rows,
         videos: videoGraph
     };

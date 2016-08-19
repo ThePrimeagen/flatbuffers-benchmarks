@@ -22,7 +22,7 @@ function createServer(host, port, responder, onServer) {
                 });
         }).
         on('error', function _onServerError(e) {
-            console.log('error', e);
+            console.log('Server#Error', e);
         }).
         on('complete', function _onCompleted() {
             console.log('TCP Server connection completed');

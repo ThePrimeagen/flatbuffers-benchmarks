@@ -37,6 +37,7 @@ table Row {
 
 table Lolomo {
     id:string;
+    clientId:byte;
     rows:[Row];
 }
 

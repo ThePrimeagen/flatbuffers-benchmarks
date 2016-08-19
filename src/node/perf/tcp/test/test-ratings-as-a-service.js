@@ -78,6 +78,7 @@ function createRequest(clientId, isJSON) {
             clientId: clientId
         });
     }
+    
     const bb = new flatbuffers.Builder(5);
     const vOffset = RatingsRequest.createVideosVector(bb, ids);
     

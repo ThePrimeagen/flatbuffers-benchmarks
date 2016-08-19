@@ -26,7 +26,13 @@ const defaultArgs = Object.
         mutationCount: 10,
         clientId: 1,
         report: false,
-        isGraph: false
+        isGraph: false,
+    
+        // Purely for the aggregation service runner.
+        lolomoHost: 'localhost',
+        lolomoPort: 33334,
+        ratingsHost: 'localhost',
+        ratingsPort: 33335
     });
 
 module.exports = defaultArgs;

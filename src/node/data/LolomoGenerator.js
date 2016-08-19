@@ -34,7 +34,7 @@ const LolomoGenerator = function LolomoGenerator() {
 module.exports = LolomoGenerator;
 
 LolomoGenerator.prototype = {
-    createLolomo(r, c, percentSimilar) {
+    createLolomo(r, c, percentSimilar, clientId) {
         percentSimilar = percentSimilar || 0;
 
         const count = r * c;
@@ -46,17 +46,18 @@ LolomoGenerator.prototype = {
 
         return {
             rows: rows,
-            id: id
+            id: id,
+            clientId: clientId
         };
     },
 
-    getLolomoAsFBS(r, c, percentSimilar, unique) {
-        const lolomo = this.createLolomo(r, c, percentSimilar);
+    getLolomoAsFBS(r, c, percentSimilar, unique, clientId) {
+        const lolomo = this.createLolomo(r, c, percentSimilar, clientId);
         return fbs(lolomo, unique);
     },
 
-    getLolomoAsJSON(r, c, percentSimilar, unique) {
-        const lolomo = this.createLolomo(r, c, percentSimilar);
+    getLolomoAsJSON(r, c, percentSimilar, unique, clientId) {
+        const lolomo = this.createLolomo(r, c, percentSimilar, clientId);
         return json(lolomo, unique);
     },
 
@@ -111,7 +112,7 @@ LolomoGenerator.prototype = {
             isMovie: this._getRandomBoolean(.3),
             runningTime: 1,
             maturityRating: randomListItem(maturityList),
-            starRating: this._generator.getRandomInt(50, 1),
+            starRating: 1,
             yearCreated: this._generator.getRandomInt(2016, 1896),
             badging: {
                 HD: this._getRandomBoolean(.9),
@@ -201,8 +202,10 @@ LolomoGenerator.printFBS = function printFBS(lolomo) {
             console.log(space, space, 'Video {');
 
             const video = row.videos(j);
+            console.log(space, space, space, 'id', video.id());
             console.log(space, space, space, 'title', video.title());
             console.log(space, space, space, 'runningTime', video.runningTime());
+            console.log(space, space, space, 'starRating', video.starRating());
 
             if (videoMap[video.id()]) {
                 console.log('Match!', videoMap[video.id()], video.runningTime());

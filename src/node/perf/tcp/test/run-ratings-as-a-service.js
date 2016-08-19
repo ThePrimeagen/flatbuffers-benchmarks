@@ -17,7 +17,7 @@ function _runServer(cb) {
             cb();
         }
     });
-};
+}
 
 module.exports = _runServer;
 

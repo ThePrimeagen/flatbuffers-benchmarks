@@ -100,6 +100,7 @@ function createLolomo(builder, lolomo, listOfRowIndices) {
 
     Lolomo.startLolomo(builder);
     Lolomo.addId(builder, idOffset);
+    Lolomo.addClientId(builder, lolomo.clientId);
     Lolomo.addRows(builder, rowsIndex);
 
     const lolomoIndex = Lolomo.endLolomo(builder);

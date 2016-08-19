@@ -17,7 +17,7 @@ function responder(client, buffer) {
     let data = cache.get(clientId, type);
     
     if (!data) {
-        data = buildLolomo(lolomoRequest, isJSON);
+        data = buildLolomo(lolomoRequest, clientId, isJSON);
         cache.insert(clientId, type, data);
     }
 
@@ -35,7 +35,7 @@ function toBuffer(lolomo, isJSON) {
     return new Buffer(lolomo);
 }
 
-function buildLolomo(request, isJSON) {
+function buildLolomo(request, clientId, isJSON) {
     const gen = new LolomoGenerator();
     const rows = isJSON ? request.rows : request.rows();
     const columns = isJSON ? request.columns : request.columns();
@@ -45,9 +45,9 @@ function buildLolomo(request, isJSON) {
 
     let buffer = null;
     if (isJSON) {
-        return gen.getLolomoAsJSON(rows, columns, percentSimilar, isGraph);
+        return gen.getLolomoAsJSON(rows, columns, percentSimilar, isGraph, clientId);
     }
-    const bytes = gen.getLolomoAsFBS(rows, columns, percentSimilar, isGraph);
+    const bytes = gen.getLolomoAsFBS(rows, columns, percentSimilar, isGraph, clientId);
     return bytes;
 }
 

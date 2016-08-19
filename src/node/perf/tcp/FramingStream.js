@@ -15,7 +15,7 @@ const FramingStream = function _FramingStream(parentStream) {
     parentStream.on('data', function _onData(chunk) {
         self._frameData(chunk);
     });
-}
+};
 
 module.exports = FramingStream;
 
@@ -48,6 +48,14 @@ FramingStream.prototype._frameData = function _frameData(chunk) {
         // Therefore, we must initialize our aggregator.
         if (this._buf === null) {
             remainingData = this._initializeAggregator(remainingData, frameMark);
+            
+            // We cannot continue.  There has been a disaster!  We cannot aggregate,
+            // not enough data.
+            if (remainingData === null) {
+                console.log('Not Enough data to Aggregate, stop');
+                break;
+            }
+            
             remainingLength = remainingData.length;
         }
 
@@ -69,26 +77,45 @@ FramingStream.prototype._frameData = function _frameData(chunk) {
 
         // What remains in this chunk is the data we expect.
         else if (this._totalLength === this._len + remainingLength) {
-            remainingLength = 0;
-
             // Pass the remaining data to the next item.
-            this.push(this._aggregate(remainingData));
+            const sliced = this._aggregate(remainingData);
+            
+            this.push(sliced);
             this._buf = null;
+            this._len = 0;
+            remainingLength = 0;
         }
 
         // There is more than one message in this chunk.
         else {
-            this.push(remainingData.slice(0, this._totalLen));
+            const amountToSlice = this._totalLength - this._len;
+            const sliced = this._aggregate(remainingData.slice(0, amountToSlice));
+            
+            this.push(sliced);
             this._buf = null;
             this._len = 0;
 
-            frameMark = this._totalLen;
+            frameMark = amountToSlice;
         }
 
     } while (remainingLength > 0);
 };
 
 FramingStream.prototype._initializeAggregator = function _initAgg(chunk, start) {
+
+    // If there is a partial length floating around, prepend it and then
+    // start the aggregator algo.
+    if (this._lenPartial) {
+        chunk = Buffer.concat([this._lenPartial, chunk]);
+        this._lenPartial = null;
+    }
+    
+    // Edge case, we cannot read the integer
+    if (chunk.length - start < 4 && !this._lenPartial) {
+        this._lenPartial = chunk.slice(start);
+        return null;
+    }
+    
     this._totalLength = chunk.readUInt32LE(start);
     this._len = 0;
 
@@ -96,8 +123,9 @@ FramingStream.prototype._initializeAggregator = function _initAgg(chunk, start) 
 };
 
 FramingStream.prototype._aggregate = function _aggregate(buf) {
+    let outBuf = buf;
     if (this._buf) {
-        return Buffer.concat([this._buf, buf]);
+        outBuf = Buffer.concat([this._buf, buf]);
     }
-    return buf;
+    return outBuf;
 };
