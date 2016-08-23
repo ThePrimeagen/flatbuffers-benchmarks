@@ -8,12 +8,37 @@ const random = require('../../../data/random').random;
 const Cache = require('../Cache');
 const cache = new Cache();
 
+let fbsCount = 0;
+let jsonCount = 0;
+let fbsVideoCount = 0;
+let jsonVideoCount = 0;
+const intervalId = setInterval(function _reportRPS() {
+    console.log('RPS(fbs): ', fbsCount / 10);
+    console.log('RPS(json): ', jsonCount / 10);
+    console.log('RPS(videos.fbs): ', fbsVideoCount / 10);
+    console.log('RPS(videos.json): ', jsonVideoCount / 10);
+
+    fbsCount = jsonCount = fbsVideoCount = jsonVideoCount = 0;
+}, 10000);
+
 function responder(client, buffer) {
     const isJSON = AsAService.isJSONRequest(buffer);
     const ratingsRequest = AsAService.parse(buffer, RatingsRequest.getRootAsRatingsRequest);
     const clientId = isJSON ? ratingsRequest.clientId : ratingsRequest.clientId();
     const data = fillRequest(ratingsRequest, clientId, isJSON);
     const outBuf = toBuffer(data, isJSON);
+    const requestLength = isJSON ? ratingsRequest.videos.length : ratingsRequest.videosLength();
+    
+    // Reporting
+    if (isJSON) {
+        jsonCount++;
+        jsonVideoCount += requestLength;
+    }
+    
+    else {
+        fbsCount++;
+        fbsVideoCount += requestLength;
+    }
     
     client.write(AsAService.createTransportBuffer(outBuf, isJSON));
 }
