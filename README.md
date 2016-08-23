@@ -16,35 +16,32 @@ Once npm has been installed its easy to run any of the tests.
 
 #### TCP tests
 
-As of writing this readme there is only 1 tcp test.  Transfering `Lolomo`'s\* back
-and forth between a client and server.  The client and server will mutate the `Lolomo`'s
-`runningTime` based on `src/node/programArgs` default value or the arguments passed in.
+There is one extensive TCP test.  To run the test you must start 3 separte servers.
 
-##### JSON Test
-
+First start the lolomo server
 ```bash
-// In one tab, you can run in background, but I like mine in foreground.
-time node src/node/perf/tcp/lolomo/server.js
-
-// In another tab
-time node src/node/perf/tcp/lolomo/client.js
+> node src/node/perf/tcp/test/run-lolomo-as-a-service.js --port=33334
 ```
 
-This will run the test with 300 operations (`--opsCount` argument to define a different value).
-On my Macbook air this takes 13+ seconds to complete.  There is no `console.log`ing that happens other than the computed `programArgs`.
-
-##### Flatbuffers test
-
-Running the flatbuffer version is practically the same.
-
-
+Second start the ratings server
 ```bash
-node src/node/perf/tcp/lolomo/server.js --isJSON=false
-
-...
-
-node src/node/perf/tcp/lolomo/client.js --isJSON=false
+> node src/node/perf/tcp/test/run-ratings-as-a-service.js --port=33335
 ```
+
+Lastly, start the lolomo aggregation server
+```bash
+# Defaults
+# --host==127.0.0.1
+# --port==33333
+# --lolomoHost==127.0.0.1
+# --lolomoPort==33334
+# --ratingsHost==127.0.0.1
+# --ratingsPort==33335
+> node src/node/perf/tcp/test/run-lolomo-ratings-aggregation-as-a-service.js --host=0.0.0.0
+```
+
+Override whats necessary to run on multiple machines.  `--host=0.0.0.0` is required for
+restify to respond network requests.
 
 ### Contribution
 
