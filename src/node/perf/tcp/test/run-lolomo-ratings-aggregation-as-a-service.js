@@ -28,7 +28,8 @@ function initialize() {
             throw err;
         }
 
-        lolomoClient = new FramingStream(lClient);
+        lolomoClient = new FramingStream();
+        lClient.pipe(lolomoClient);
         runWhenReady(lolomoClient, ratingsClient);
     });
 
@@ -37,7 +38,8 @@ function initialize() {
             throw err;
         }
 
-        ratingsClient = new FramingStream(rClient);
+        ratingsClient = new FramingStream();
+        rClient.pipe(ratingsClient);
         runWhenReady(lolomoClient, ratingsClient);
     });
 }
