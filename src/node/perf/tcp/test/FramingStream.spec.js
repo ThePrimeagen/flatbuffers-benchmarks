@@ -36,6 +36,7 @@ TestPlex.prototype.case3 = function _begin() {
             self.push(p3);
         }
         if (count === 3) {
+            console.log('pushing 3', p4.length, p4.toString());
             self.push(p4);
             clearInterval(id);
         }
@@ -52,9 +53,10 @@ TestPlex.prototype._write = function (a, b, cb) {
 };
 
 const parent = new TestPlex();
-const framing = new FramingStream(parent);
+const framing = new FramingStream();
 
-framing.
+parent.
+    pipe(framing).
     on('data', function(chunk) {
         console.log('DATA', chunk.toString());
     }).
