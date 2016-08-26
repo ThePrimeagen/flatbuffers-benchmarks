@@ -9,9 +9,9 @@ const booleanFromProcess = require('../../booleanFromProcess');
 const programArgs = require('../../programArgs');
 
 function createServer(host, port, responder, onServer) {
+    console.log('creating server', host, port);
     const server = net.
         createServer(function _onServerConnection(socket) {
-
             socket.
                 pipe(new FramingStream()).
                 on('data', function _onClientData(chunk) {
