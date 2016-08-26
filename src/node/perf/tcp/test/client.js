@@ -17,29 +17,30 @@ function _client(host, port, responder, reporter, complete) {
 
     let start, end;
     const client = net.connect(opts, function _onClientConnection() {
-        const clientFramer = new FramingStream(client);
         start = process.hrtime();
 
-        clientFramer.on('data', function _onClientData(chunk) {
-            const res = responder(client, chunk);
-            if (!res) {
-                if (programArgs.report && reporter) {
-                    reporter(chunk);
+        client.
+            pipe(new FramingStream()).
+            on('data', function _onClientData(chunk) {
+                const res = responder(client, chunk);
+                if (!res) {
+                    if (programArgs.report && reporter) {
+                        reporter(chunk);
+                    }
+                    end = process.hrtime(start);
+
+                    client.destroy();
+
+                    if (complete) {
+                        complete([chunk.length, end], chunk);
+                    }
                 }
-                end = process.hrtime(start);
+            }).
+            on('error', function _e(e) {
+                console.log('client.error', e);
+            });
 
-                client.destroy();
-
-                if (complete) {
-                    complete([chunk.length, end], chunk);
-                }
-            }
-        }).
-        on('error', function _e(e) {
-            console.log('client.error', e);
-        });
-
-        responder(clientFramer, null);
+        responder(client, null);
     });
 }
 
