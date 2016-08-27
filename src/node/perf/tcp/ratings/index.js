@@ -39,8 +39,6 @@ function responder(client, buffer) {
         fbsCount++;
         fbsVideoCount += requestLength;
     }
-
-    console.log(data);
     client.write(AsAService.createTransportBuffer(outBuf, isJSON));
 }
 
