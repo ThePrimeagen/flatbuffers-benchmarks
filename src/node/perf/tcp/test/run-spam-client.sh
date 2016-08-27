@@ -9,8 +9,6 @@ IS_JSON=$4
 COUNTER=0
 ID=0
 
-    sh spam-client.sh $5 $ID $IS_JSON 33333
-    exit
 while [ $COUNTER -lt 2 ]; do
     ID=$(($COUNTER + $CLIENT_ID))
     echo "sh spam-client.sh $5 $ID $IS_JSON &"
