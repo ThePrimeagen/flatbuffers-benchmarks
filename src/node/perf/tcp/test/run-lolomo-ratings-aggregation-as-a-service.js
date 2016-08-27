@@ -154,7 +154,6 @@ function runWhenReady(lolomoClient, ratingsClient) {
         
         const lolomoResponse = getLolomoRequest(rows, columns, percentSim, 
             isGraph, clientId, isJSON);
-        console.log('writing to the client.');
         lolomoClient.write(lolomoResponse);
     });
 
