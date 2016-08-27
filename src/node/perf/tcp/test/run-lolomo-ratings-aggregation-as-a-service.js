@@ -58,6 +58,7 @@ function runWhenReady(lolomoClient, ratingsClient) {
     let fbsVideoCount = 0;
     let jsonVideoCount = 0;
     const intervalId = setInterval(function _reportRPS() {
+        console.log('port', programArgs.port);
         console.log('RPS(fbs): ', fbsCount / 10);
         console.log('RPS(json): ', jsonCount / 10);
         console.log('RPS(videos.fbs): ', fbsVideoCount / 10);
