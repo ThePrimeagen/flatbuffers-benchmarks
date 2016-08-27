@@ -28,8 +28,7 @@ function initialize() {
             throw err;
         }
 
-        lolomoClient = new FramingStream();
-        lClient.pipe(lolomoClient);
+        lolomoClient = new FramingStream(lClient);
         runWhenReady(lolomoClient, ratingsClient);
     });
 
@@ -38,8 +37,7 @@ function initialize() {
             throw err;
         }
 
-        ratingsClient = new FramingStream();
-        rClient.pipe(ratingsClient);
+        ratingsClient = new FramingStream(rClient);
         runWhenReady(lolomoClient, ratingsClient);
     });
 }
@@ -155,6 +153,7 @@ function runWhenReady(lolomoClient, ratingsClient) {
         
         const lolomoResponse = getLolomoRequest(rows, columns, percentSim, 
             isGraph, clientId, isJSON);
+        console.log('writing to the client.');
         lolomoClient.write(lolomoResponse);
     });
 

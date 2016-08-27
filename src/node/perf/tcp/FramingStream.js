@@ -1,24 +1,44 @@
 'use strict';
 
-const Transform = require('stream').Transform;
+const Duplex = require('stream').Duplex;
 const inherits = require('util').inherits;
 
 // BIG pool size.
 Buffer.poolSize = 1048576;
 
-const FramingStream = function _FramingStream() {
+const FramingStream = function _FramingStream(parent) {
+    Duplex.call(this);
     this._buf = null;
     this._len = 0;
     this._totalLength = 0;
     
-    Transform.call(this);
+    this._parent = parent;
+    
+    const self = this;
+    parent.
+        on('data', function _data(chunk) {
+            self._chunk(chunk);
+        }).
+        on('error', function _error(e) {
+            console.log(e);
+            process.exit();
+        });
 };
 
 module.exports = FramingStream;
 
-inherits(FramingStream, Transform);
+inherits(FramingStream, Duplex);
 
-FramingStream.prototype._transform = function _transform(chunk, enc, cb) {
+FramingStream.prototype._write = function _write(chunk, enc, cb) {
+    this._parent.write(chunk);
+    cb();
+};
+
+FramingStream.prototype._read = function _write() {
+    // todo: ?
+};
+
+FramingStream.prototype._chunk = function _transform(chunk) {
 
     // If there is a partial length floating around, prepend it and then
     // start the aggregator algo.
@@ -81,8 +101,6 @@ FramingStream.prototype._transform = function _transform(chunk, enc, cb) {
         }
 
     } while (frameMark < chunk.length);
-    
-    cb();
 };
 
 FramingStream.prototype._initializeAggregator = function _initAgg(chunk, start) {

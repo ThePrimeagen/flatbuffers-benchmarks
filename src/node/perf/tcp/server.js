@@ -12,10 +12,10 @@ function createServer(host, port, responder, onServer) {
     console.log('creating server', host, port);
     const server = net.
         createServer(function _onServerConnection(socket) {
-            socket.
-                pipe(new FramingStream()).
+            const framer = new FramingStream(socket);
+            framer.
                 on('data', function _onClientData(chunk) {
-                    responder(socket, chunk);
+                    responder(framer, chunk);
                 }).
                 on('error', function _error(e) {
                     console.log('framer#Error', e);

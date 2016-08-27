@@ -50,6 +50,8 @@ function responder(client, buffer) {
     }
 
     const outBuf = toBuffer(data, isJSON);
+    
+    console.log(data);
     client.write(AsAService.createTransportBuffer(outBuf, isJSON));
 }
 
