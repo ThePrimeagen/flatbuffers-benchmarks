@@ -22,12 +22,9 @@ const intervalId = setInterval(function _reportRPS() {
     fbsCount = jsonCount = fbsVideoCount = jsonVideoCount = 0;
 }, 10000);
 
-function responder(client, buffer) {
-    const isJSON = AsAService.isJSONRequest(buffer);
-    const ratingsRequest = AsAService.parse(buffer, RatingsRequest.getRootAsRatingsRequest);
+function responder(ratingsRequest, isJSON) {
     const clientId = isJSON ? ratingsRequest.clientId : ratingsRequest.clientId();
     const data = fillRequest(ratingsRequest, clientId, isJSON);
-    const outBuf = toBuffer(data, isJSON);
     const requestLength = isJSON ? ratingsRequest.videos.length : ratingsRequest.videosLength();
     
     // Reporting
@@ -40,18 +37,11 @@ function responder(client, buffer) {
         fbsCount++;
         fbsVideoCount += requestLength;
     }
-    client.write(AsAService.createTransportBuffer(outBuf, isJSON));
+    
+    return data;
 }
 
 module.exports = responder;
-
-function toBuffer(jsonOrArray, isJSON) {
-    if (isJSON) {
-        return new Buffer(JSON.stringify(jsonOrArray));
-    }
-
-    return new Buffer(jsonOrArray);
-}
 
 function fillRequest(request, clientId, isJSON) {
     let videoMap = cache.get(clientId);

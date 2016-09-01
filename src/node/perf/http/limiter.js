@@ -7,8 +7,7 @@ module.exports = function limiter(maxCount, fn) {
         if (count < maxCount) {
             count++;
 
-            fn.apply(null, arguments);
-            return true;
+            return fn.apply(null, arguments) || true;
         }
 
         return false;
