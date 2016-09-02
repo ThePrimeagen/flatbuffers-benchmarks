@@ -10,7 +10,7 @@ const host = programArgs.host;
 const port = programArgs.port;
 
 function _runServer(cb) {
-    server(host, port, rootFn, lolomoAsAService, function _onServer(e) {
+    server.createParseServer(host, port, rootFn, lolomoAsAService, function _onServer(e) {
         if (e) {
             console.log('ERROR', e);
             process.exit(1);
