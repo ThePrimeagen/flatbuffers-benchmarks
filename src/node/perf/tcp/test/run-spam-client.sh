@@ -1,35 +1,32 @@
 #!/usr/bin/env bash
 
-export ROWS=$1
-export COLUMNS=$2
+URL=$1
+CLIENT_ID=$2
+SEND_COUNT=$3
 
-CLIENT_ID=$3
-IS_JSON=$4
+if [ -z "$URL" ]; then
+    echo "No URL Provided, please provide a second argument as url"
+    exit 1
+fi
+
+if [ -z "$SEND_COUNT" ]; then
+    echo "No SEND_COUNT (3rd argument) was provided, therefore default to 1000"
+    SEND_COUNT=1000;
+fi
 
 COUNTER=0
-ID=0
+ID=CLIENT_ID
 
-while [ $COUNTER -lt 2 ]; do
-    ID=$(($COUNTER + $CLIENT_ID))
-    echo "sh spam-client.sh $5 $ID $IS_JSON &"
-    sh spam-client.sh $5 $ID $IS_JSON 33333 &
-
-    COUNTER=$(($COUNTER + 1))
-done
-
-while [ $COUNTER -lt 4 ]; do
-    ID=$(($COUNTER + $CLIENT_ID))
-    echo "sh spam-client.sh $5 $ID $IS_JSON &"
-    sh spam-client.sh $5 $ID $IS_JSON 33334 &
+while [ $COUNTER -lt 3 ]
+do
+    ID=$(($ID + 1))
+    echo "sh spam-client.sh $URL&clientId=$ID $SEND_COUNT &"
+    sh spam-client.sh "$URL&clientId=$ID" $SEND_COUNT &
 
     COUNTER=$(($COUNTER + 1))
 done
 
-ID=$(($COUNTER + $CLIENT_ID))
-ID_2=$(($COUNTER + $CLIENT_ID + 1))
-echo "sh spam-client.sh $5 $ID $IS_JSON &"
-sh spam-client.sh $5 $ID $IS_JSON 33335 &
-
-echo "sh spam-client.sh $5 $ID_2 $IS_JSON "
-sh spam-client.sh $5 $ID_2 $IS_JSON 33335
+# Blocks on this one.
+ID=$(($ID + 1))
+sh spam-client.sh "$URL&clientId=$ID" $SEND_COUNT
 

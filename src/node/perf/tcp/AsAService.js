@@ -1,6 +1,7 @@
 'use strict';
 
 const flatbuffers = require('../../flatbuffers').flatbuffers;
+const zlib = require('zlib');
 
 function isJSONRequest(buf) {
     return buf.readUInt8(0) === 1;
@@ -8,12 +9,13 @@ function isJSONRequest(buf) {
 
 const AsAService = module.exports = {
     createTransportBuffer(buf, isJSON) {
-        const len = buf.length;
         const lenAndTypeBuf = new Buffer(5);
+        const newBuf = zlib.gzipSync(buf);
+        const len = newBuf.length;
         lenAndTypeBuf.writeUInt32LE(len + 1, 0);
         lenAndTypeBuf.writeUInt8(isJSON ? 1 : 0, 4);
 
-        return Buffer.concat([lenAndTypeBuf, buf]);
+        return Buffer.concat([lenAndTypeBuf, newBuf]);
     },
 
     // Due to how the framing stream works, the first 4 bytes have
@@ -25,13 +27,13 @@ const AsAService = module.exports = {
      * provided to call.
      */
     parse(buf, rootFunction) {
-        const dataBuffer = buf.slice(1);
+        const zippedBuffer = buf.slice(1);
+        const dataBuffer = zlib.gunzipSync(zippedBuffer);
+        
         if (isJSONRequest(buf)) {
-            return JSON.parse(dataBuffer.toString());
+            return JSON.parse(dataBuffer);
         }
 
-        const totalLength = dataBuffer.byteOffset + dataBuffer.byteLength;
-        const ab = dataBuffer.buffer.slice(dataBuffer.byteOffset, totalLength);
         const int8array = new Uint8Array(dataBuffer.buffer,
                                          dataBuffer.byteOffset,
                                          dataBuffer.byteLength);

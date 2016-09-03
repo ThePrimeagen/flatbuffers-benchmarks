@@ -16,7 +16,7 @@ let jsonCount = 0;
 let fbsVideoCount = 0;
 let jsonVideoCount = 0;
 const intervalId = setInterval(function _reportRPS() {
-    console.log('-- Port --', programArgs.port);
+    console.log('-- Lolomo Port --', programArgs.port);
     console.log('RPS(fbs): ', fbsCount / 10);
     console.log('RPS(json): ', jsonCount / 10);
     console.log('RPS(videos.fbs): ', fbsVideoCount / 10);
@@ -29,16 +29,16 @@ function responder(client, buffer) {
     const isJSON = AsAService.isJSONRequest(buffer);
     const lolomoRequest = AsAService.parse(buffer, LolomoRequest.getRootAsLolomoRequest);
     const clientId = isJSON ? lolomoRequest.clientId : lolomoRequest.clientId();
-    const type = getJSONOrFBSKey(isJSON);
-    let data = cache.get(clientId, type);
+    const rows = isJSON ? lolomoRequest.rows : lolomoRequest.rows();
+    const columns = isJSON ? lolomoRequest.columns : lolomoRequest.columns();
+    const requestLength = rows * columns;
+    const key = getCacheKey(rows, columns, isJSON);
+    let data = cache.get(clientId, key);
     
     if (!data) {
         data = buildLolomo(lolomoRequest, clientId, isJSON);
-        cache.insert(clientId, type, data);
+        cache.insert(clientId, key, data);
     }
-
-    const requestLength = isJSON ? lolomoRequest.rows * lolomoRequest.columns : 
-                                   lolomoRequest.rows() * lolomoRequest.columns();
 
     // Reporting
     if (isJSON) {
@@ -81,6 +81,7 @@ function buildLolomo(request, clientId, isJSON) {
     return bytes;
 }
 
-function getJSONOrFBSKey(isJSON) {
-    return isJSON ? 'json' : 'fbs';
+function getCacheKey(rows, cols, isJSON) {
+    const type = isJSON ? 'json' : 'fbs';
+    return type + '_' + rows + '_' + cols;
 }

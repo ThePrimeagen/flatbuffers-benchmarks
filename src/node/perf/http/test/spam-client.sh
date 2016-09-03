@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 
-len=$1
-IS_JSON=$2
+url=$1
+count=$2
+is_json=$3
 counter=0
 
-if [ IS_JSON == 'true' ]; then
-    APP="application/json"
+if [ is_json == 'true' ]; then
+    app="application/json"
 else
-    APP="application/octet-stream"
+    app="application/octet-stream"
 fi
 
-while [ $counter -lt $len ]; do
-    echo "curl -s \"http://$SERVER_ADDR:33333/?rows=$ROWS&columns=$COLUMNS&clientId=$2\" -H \"Content-Type: $APP\" > /dev/null"
-    curl -s "http://$SERVER_ADDR:33333/?rows=$ROWS&columns=$COLUMNS&clientId=$2" -H "Content-Type: $APP" > /dev/null
+while [ $counter -lt $count ]; do
+    curl -s "$url" -H "Content-Type: $app" > /dev/null
     counter=$(($counter+1))
 done

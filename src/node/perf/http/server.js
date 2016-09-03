@@ -73,12 +73,32 @@ function createResponseServer(host, port, responder, onServer) {
         const isJSON = contentType === jsonContentType;
         const url = req.url;
 
-        console.log('headers', headers);
-        console.log('contentType', contentType);
         res.setHeader(contentTypeKey, contentType);
         res.statusCode = 200;
         
-        responder(url, isJSON, res)
+        responder(url, isJSON, res);
+    });
+
+
+    server.listen(args, function _serverStart(e) {
+        console.log('server response start', e);
+        if (onServer) {
+            onServer(e);
+        }
+    });
+}
+
+function createSimpleServer(host, port, responder, onServer) {
+    const args = {
+        port: port,
+        host: host
+    };
+
+    console.log('creating response server', host, port);
+    const server = http.createServer(function _onResponse(req, res) {
+        const url = req.url;
+        res.statusCode = 200;
+        responder(url, res);
     });
 
 
@@ -92,5 +112,6 @@ function createResponseServer(host, port, responder, onServer) {
 
 module.exports = {
     createParseServer: createParseServer,
-    createResponseServer: createResponseServer
+    createResponseServer: createResponseServer,
+    createSimpleServer: createSimpleServer
 };

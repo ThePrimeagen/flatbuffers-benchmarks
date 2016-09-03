@@ -11,6 +11,7 @@ const RatingsRequest = require('../../../data/ratings-request_generated').Netfli
 const RatingsResponse = require('../../../data/ratings-response_generated').Netflix.RatingsResponse;
 const LolomoGenerator = require('../../../data/LolomoGenerator');
 const flatbuffers = require('../../../flatbuffers').flatbuffers;
+const createServer = require('../../http/server').createSimpleServer;
 
 const Lolomo = Netflix.Lolomo;
 
@@ -106,10 +107,14 @@ function runWhenReady(lolomoClient, ratingsClient) {
         }
 
         mergeData(request.lolomo, request.ids, ratingsResponse, isJSON);
-        if (!isJSON) {
-            request.res.contentType = 'application/octet-stream';
+        if (isJSON) {
+            request.res.setHeader('Content-Type', 'application/json');
+        } else {
+            request.res.setHeader('Content-Type', 'application/octet-stream');
         }
-        request.res.send(request.lolomo);
+        
+        request.res.write(toBuffer(request.lolomo, isJSON));
+        request.res.end();
 
         requestMap[clientId] = undefined;
 
@@ -134,32 +139,68 @@ function runWhenReady(lolomoClient, ratingsClient) {
         process.abort(1);
     });
 
-    server.get('/lolomo/:clientId/:rows/:columns/:sim/:isGraph/:isJSON', function _getLolomo(req, res, next) {
-        const clientId = +req.params.clientId;
-        const isJSON = req.params.isJSON === 'true';
-        const isGraph = req.params.isGraph === 'true';
-        const percentSim = +req.params.sim;
-        const columns = +req.params.columns;
-        const rows = +req.params.rows;
+    createServer(programArgs.host, programArgs.port, function _getLolomo(url, res) {
+        const sim = 0;
+        let isGraph = false;
+        let clientId = 0;
+        let rows = 0;
+        let columns = 0;
+        let isJSON = true;
+        
+
+        const query = url.split('?')[1];
+        if (query) {
+            query.
+            split('&').
+            forEach(function _eachParam(param) {
+                const kValue = param.split('=');
+                const key = kValue[0];
+                const value = Number(kValue[1]);
+                switch (key) {
+                    case 'rows':
+                        rows = value;
+                        break;
+                    case 'columns':
+                        columns = value;
+                        break;
+                    case 'clientId':
+                        clientId = value;
+                        break;
+                    case 'isJSON':
+                        isJSON = Boolean(value);
+                        break;
+                    case 'isGraph':
+                        isGraph = Boolean(value);
+                        break;
+                    default: break;
+                }
+            });
+        }
+        
+        if (clientId === 0) {
+            console.log('ABORT---------- ClientId = 0');
+            process.exit(1);
+        }
 
         requestMap[clientId] = {
-            req: req, 
             res: res, 
-            next: next,
             isGraph: isGraph,
             rows: rows,
             columns: columns,
             lolomo: null
         };
         
-        const lolomoResponse = getLolomoRequest(rows, columns, percentSim, 
+        const lolomoResponse = getLolomoRequest(rows, columns, sim, 
             isGraph, clientId, isJSON);
         lolomoClient.write(lolomoResponse);
     });
+}
 
-    server.listen(args, function _onListen() {
-        console.log('%s listening at %s', server.name, server.url);
-    });
+function toBuffer(lolomo, isJSON) {
+    if (isJSON) {
+        return JSON.stringify(lolomo);
+    }
+    return new Buffer(lolomo.bb.bytes());
 }
 
 function getLolomoRequest(rows, columns, percentSimilar, 
@@ -231,7 +272,7 @@ function mergeData(lolomo, ids, res, isJSON) {
     for (let idIdx = 0; idIdx < ids.length; ++idIdx) {
         const id = ids[idIdx];
         const rating = isJSON ? res.ratings[idIdx] : res.ratings(idIdx);
-        
+
         videoMap[id] = rating;
     }
     
