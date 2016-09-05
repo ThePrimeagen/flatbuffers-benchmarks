@@ -32,7 +32,10 @@ const defaultArgs = Object.
         lolomoHost: 'localhost',
         lolomoPort: 33334,
         ratingsHost: 'localhost',
-        ratingsPort: 33335
+        ratingsPort: 33335,
+    
+        // If compression should happen
+        compress: false
     });
 
 module.exports = defaultArgs;

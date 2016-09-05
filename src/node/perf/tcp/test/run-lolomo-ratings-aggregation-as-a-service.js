@@ -69,7 +69,7 @@ function runWhenReady(lolomoClient, ratingsClient) {
     }, 10000);
 
     lolomoClient.on('data', function _lolomoResponse(lolomoBuf) {
-        const lolomo = AsAService.parse(lolomoBuf, Lolomo.getRootAsLolomo, true);
+        const lolomo = AsAService.parse(lolomoBuf, Lolomo.getRootAsLolomo, programArgs.compress);
         const isJSON = AsAService.isJSONRequest(lolomoBuf);
         const clientId = getClientId(lolomo, isJSON);
         const request = requestMap[clientId];
@@ -108,7 +108,7 @@ function runWhenReady(lolomoClient, ratingsClient) {
 
         mergeData(request.lolomo, request.ids, ratingsResponse, isJSON);
 
-        AsAService.write(request.res, request.lolomo, isJSON, true);
+        AsAService.write(request.res, request.lolomo, isJSON, programArgs.compress);
 
         requestMap[clientId] = undefined;
 

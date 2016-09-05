@@ -10,11 +10,13 @@ const Cache = require('../Cache');
 const cache = new Cache();
 const programArgs = require('../../../programArgs');
 
-
+const compress = programArgs.compress;
 let fbsCount = 0;
 let jsonCount = 0;
 let fbsVideoCount = 0;
 let jsonVideoCount = 0;
+
+
 const intervalId = setInterval(function _reportRPS() {
     console.log('-- Lolomo Port --', programArgs.port);
     console.log('RPS(fbs): ', fbsCount / 10);
@@ -52,7 +54,7 @@ function responder(client, buffer) {
     }
 
     const outBuf = toBuffer(data, isJSON);
-    client.write(AsAService.createTransportBuffer(outBuf, isJSON, true));
+    client.write(AsAService.createTransportBuffer(outBuf, isJSON, compress));
 }
 
 module.exports = responder;
