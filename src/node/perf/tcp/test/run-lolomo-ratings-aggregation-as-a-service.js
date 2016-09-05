@@ -69,7 +69,7 @@ function runWhenReady(lolomoClient, ratingsClient) {
     }, 10000);
 
     lolomoClient.on('data', function _lolomoResponse(lolomoBuf) {
-        const lolomo = AsAService.parse(lolomoBuf, Lolomo.getRootAsLolomo);
+        const lolomo = AsAService.parse(lolomoBuf, Lolomo.getRootAsLolomo, true);
         const isJSON = AsAService.isJSONRequest(lolomoBuf);
         const clientId = getClientId(lolomo, isJSON);
         const request = requestMap[clientId];
@@ -107,14 +107,8 @@ function runWhenReady(lolomoClient, ratingsClient) {
         }
 
         mergeData(request.lolomo, request.ids, ratingsResponse, isJSON);
-        if (isJSON) {
-            request.res.setHeader('Content-Type', 'application/json');
-        } else {
-            request.res.setHeader('Content-Type', 'application/octet-stream');
-        }
-        
-        request.res.write(toBuffer(request.lolomo, isJSON));
-        request.res.end();
+
+        AsAService.write(request.res, request.lolomo, isJSON, true);
 
         requestMap[clientId] = undefined;
 
@@ -140,7 +134,7 @@ function runWhenReady(lolomoClient, ratingsClient) {
     });
 
     createServer(programArgs.host, programArgs.port, function _getLolomo(url, res) {
-        const sim = 0;
+        let sim = 0;
         let isGraph = false;
         let clientId = 0;
         let rows = 0;
@@ -172,6 +166,9 @@ function runWhenReady(lolomoClient, ratingsClient) {
                     case 'isGraph':
                         isGraph = Boolean(value);
                         break;
+                    case 'sim':
+                        sim = value;
+                        break;
                     default: break;
                 }
             });
@@ -194,13 +191,6 @@ function runWhenReady(lolomoClient, ratingsClient) {
             isGraph, clientId, isJSON);
         lolomoClient.write(lolomoResponse);
     });
-}
-
-function toBuffer(lolomo, isJSON) {
-    if (isJSON) {
-        return JSON.stringify(lolomo);
-    }
-    return new Buffer(lolomo.bb.bytes());
 }
 
 function getLolomoRequest(rows, columns, percentSimilar, 

@@ -7,10 +7,42 @@ function isJSONRequest(buf) {
     return buf.readUInt8(0) === 1;
 }
 
+function toBuffer(obj, isJSON) {
+    if (isJSON) {
+        return JSON.stringify(obj);
+    }
+    return new Buffer(obj.bb.bytes());
+}
+
 const AsAService = module.exports = {
-    createTransportBuffer(buf, isJSON) {
+    write(res, obj, isJSON, compress) {
+        if (compress) {
+            res.setHeader('Content-Encoding', 'gzip');
+        }
+        
+        if (isJSON) {
+            res.setHeader('Content-Type', 'application/json');
+        } else {
+            res.setHeader('Content-Type', 'application/octet-stream');
+        }
+        
+        let dataBuffer = toBuffer(obj, isJSON);
+        if (compress) {
+            dataBuffer = zlib.gzipSync(dataBuffer);
+        }
+        
+        res.write(dataBuffer);
+        res.end();
+    },
+
+    createTransportBuffer(buf, isJSON, compress) {
         const lenAndTypeBuf = new Buffer(5);
-        const newBuf = zlib.gzipSync(buf);
+        
+        let newBuf = buf;
+        if (compress) {
+            newBuf = zlib.gzipSync(buf);
+        }
+        
         const len = newBuf.length;
         lenAndTypeBuf.writeUInt32LE(len + 1, 0);
         lenAndTypeBuf.writeUInt8(isJSON ? 1 : 0, 4);
@@ -26,9 +58,12 @@ const AsAService = module.exports = {
      * will parse the buffer.  If is FBS then rootFunction has to be
      * provided to call.
      */
-    parse(buf, rootFunction) {
+    parse(buf, rootFunction, compress) {
         const zippedBuffer = buf.slice(1);
-        const dataBuffer = zlib.gunzipSync(zippedBuffer);
+        let dataBuffer = zippedBuffer;
+        if (compress) {
+            dataBuffer = zlib.gunzipSync(dataBuffer);
+        }
         
         if (isJSONRequest(buf)) {
             return JSON.parse(dataBuffer);

@@ -52,7 +52,7 @@ function responder(client, buffer) {
     }
 
     const outBuf = toBuffer(data, isJSON);
-    client.write(AsAService.createTransportBuffer(outBuf, isJSON));
+    client.write(AsAService.createTransportBuffer(outBuf, isJSON, true));
 }
 
 module.exports = responder;
