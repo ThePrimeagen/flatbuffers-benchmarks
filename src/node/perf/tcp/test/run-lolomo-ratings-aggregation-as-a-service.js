@@ -160,10 +160,10 @@ function runWhenReady(lolomoClient, ratingsClient) {
                         clientId = Number(value);
                         break;
                     case 'isJSON':
-                        isJSON = Boolean(value);
+                        isJSON = value === 'true';
                         break;
                     case 'isGraph':
-                        isGraph = Boolean(value);
+                        isGraph = value === 'true';
                         break;
                     case 'sim':
                         sim = value;
