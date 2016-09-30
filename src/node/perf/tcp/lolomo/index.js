@@ -36,7 +36,7 @@ function responder(client, buffer) {
     const requestLength = rows * columns;
     const key = getCacheKey(rows, columns, isJSON);
     let data = cache.get(clientId, key);
-    
+
     if (!data) {
         data = buildLolomo(lolomoRequest, clientId, isJSON);
         cache.insert(clientId, key, data);
@@ -73,7 +73,10 @@ function buildLolomo(request, clientId, isJSON) {
     const columns = isJSON ? request.columns : request.columns();
     const percentSimilar = isJSON ?
         request.percentSimilar : request.percentSimilar();
-    const isGraph = isJSON ? request.isGraph : request.isGraph();
+
+    // Flatbuffers natively support graph.  There is no reason not to consider
+    // this option.
+    const isGraph = isJSON ? request.isGraph : true;
 
     let buffer = null;
     if (isJSON) {

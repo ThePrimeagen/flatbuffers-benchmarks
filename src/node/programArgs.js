@@ -27,15 +27,20 @@ const defaultArgs = Object.
         clientId: 1,
         report: false,
         isGraph: false,
-    
+
         // Purely for the aggregation service runner.
         lolomoHost: 'localhost',
         lolomoPort: 33334,
         ratingsHost: 'localhost',
         ratingsPort: 33335,
-    
+
         // If compression should happen
-        compress: false
+        compress: false,
+
+        // for spam client defaults
+        // This will use rows, columns, host, port, and clientId 
+        // to construct the URL to hit for spam clients.
+        curlTimes: 1000
     });
 
 module.exports = defaultArgs;

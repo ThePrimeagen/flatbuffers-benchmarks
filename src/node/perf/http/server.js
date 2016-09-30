@@ -17,14 +17,14 @@ function createParseServer(host, port, rootFn, responder, onServer) {
         port: port,
         host: host
     };
-    
+
     console.log('creating server', host, port);
     const server = http.createServer(function _onResponse(req, res) {
         const headers = req.headers;
         const contentType = headers[contentTypeKey];
         const isJSON = contentType === jsonContentType;
         const bufs = [];
-        
+
         req.
             on('data', function _data(chunk) {
                 bufs.push(chunk);
@@ -75,7 +75,7 @@ function createResponseServer(host, port, responder, onServer) {
 
         res.setHeader(contentTypeKey, contentType);
         res.statusCode = 200;
-        
+
         responder(url, isJSON, res);
     });
 
@@ -94,7 +94,7 @@ function createSimpleServer(host, port, responder, onServer) {
         host: host
     };
 
-    console.log('creating response server', host, port);
+    console.log('creating simple server', host, port);
     const server = http.createServer(function _onResponse(req, res) {
         const url = req.url;
         res.statusCode = 200;

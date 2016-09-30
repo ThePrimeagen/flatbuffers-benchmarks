@@ -48,7 +48,6 @@ function runWhenReady(lolomoClient, ratingsClient) {
         return;
     }
 
-    const server = restify.createServer();
     const args = {
         port: programArgs.port,
         host: programArgs.host
@@ -64,7 +63,7 @@ function runWhenReady(lolomoClient, ratingsClient) {
         console.log('RPS(json): ', jsonCount / 10);
         console.log('RPS(videos.fbs): ', fbsVideoCount / 10);
         console.log('RPS(videos.json): ', jsonVideoCount / 10);
-        
+
         fbsCount = jsonCount = fbsVideoCount = jsonVideoCount = 0;
     }, 10000);
 
@@ -73,28 +72,28 @@ function runWhenReady(lolomoClient, ratingsClient) {
         const isJSON = AsAService.isJSONRequest(lolomoBuf);
         const clientId = getClientId(lolomo, isJSON);
         const request = requestMap[clientId];
-        
+
         if (!request) {
             console.log('Lolomo, we have a problem');
             console.log(lolomoBuf.toString());
         }
-        
+
         const ids = getIds(lolomo, isJSON, request.isGraph);
-        
+
         request.lolomo = lolomo;
         request.ids = ids;
-        
+
         const ratingRequest = buildRatingsRequest(ids, clientId, isJSON);
         ratingsClient.write(ratingRequest);
     });
-    
+
     lolomoClient.on('error', function _lolomoError(e) {
         console.log('lolomo');
         console.log(e.message);
         console.log(e.stack);
         process.abort(1);
     });
-    
+
     ratingsClient.on('data', function _ratingsResponse(ratingsBuf) {
         const ratingsResponse = AsAService.parse(ratingsBuf, RatingsResponse.getRootAsRatingsResponse);
         const isJSON = AsAService.isJSONRequest(ratingsBuf);
@@ -118,14 +117,14 @@ function runWhenReady(lolomoClient, ratingsClient) {
             jsonCount++;
             jsonVideoCount += request.rows * request.columns;
         }
-        
+
         else {
             fbsCount++;
             fbsVideoCount += request.rows * request.columns;
 
         }
     });
-    
+
     ratingsClient.on('error', function _ratingsError(e) {
         console.log('ratings');
         console.log(e.message);
@@ -140,7 +139,7 @@ function runWhenReady(lolomoClient, ratingsClient) {
         let rows = 0;
         let columns = 0;
         let isJSON = true;
-        
+
 
         const query = url.split('?')[1];
         if (query) {
@@ -149,16 +148,16 @@ function runWhenReady(lolomoClient, ratingsClient) {
             forEach(function _eachParam(param) {
                 const kValue = param.split('=');
                 const key = kValue[0];
-                const value = Number(kValue[1]);
+                const value = kValue[1];
                 switch (key) {
                     case 'rows':
-                        rows = value;
+                        rows = Number(value);
                         break;
                     case 'columns':
-                        columns = value;
+                        columns = Number(value);
                         break;
                     case 'clientId':
-                        clientId = value;
+                        clientId = Number(value);
                         break;
                     case 'isJSON':
                         isJSON = Boolean(value);
@@ -173,27 +172,27 @@ function runWhenReady(lolomoClient, ratingsClient) {
                 }
             });
         }
-        
+
         if (clientId === 0) {
             console.log('ABORT---------- ClientId = 0');
             process.exit(1);
         }
 
         requestMap[clientId] = {
-            res: res, 
+            res: res,
             isGraph: isGraph,
             rows: rows,
             columns: columns,
             lolomo: null
         };
-        
-        const lolomoResponse = getLolomoRequest(rows, columns, sim, 
+
+        const lolomoResponse = getLolomoRequest(rows, columns, sim,
             isGraph, clientId, isJSON);
         lolomoClient.write(lolomoResponse);
     });
 }
 
-function getLolomoRequest(rows, columns, percentSimilar, 
+function getLolomoRequest(rows, columns, percentSimilar,
                           isGraph, clientId, isJSON) {
 
     const request = LolomoGenerator.createRequest(
@@ -210,12 +209,12 @@ function getClientId(obj, isJSON) {
 }
 
 function getIds(lolomo, isJSON, isGraph) {
-    
+
     const videoMap = {};
     const rowLength = isJSON ? lolomo.rows.length : lolomo.rowsLength();
     for (let rIdx = 0; rIdx < rowLength; ++rIdx) {
         const row = isJSON ? lolomo.rows[rIdx] : lolomo.rows(rIdx);
-        
+
         const videosLength = isJSON ? row.videos.length : row.videosLength();
         for (let vIdx = 0; vIdx < videosLength; ++vIdx) {
             const video = isJSON ? row.videos[vIdx] : row.videos(vIdx);
@@ -226,7 +225,7 @@ function getIds(lolomo, isJSON, isGraph) {
             }
         }
     }
-    
+
     return Object.keys(videoMap);
 }
 
@@ -265,7 +264,7 @@ function mergeData(lolomo, ids, res, isJSON) {
 
         videoMap[id] = rating;
     }
-    
+
     const rowLength = isJSON ? lolomo.rows.length : lolomo.rowsLength();
     for (let rIdx = 0; rIdx < rowLength; ++rIdx) {
         const row = isJSON ? lolomo.rows[rIdx] : lolomo.rows(rIdx);
