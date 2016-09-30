@@ -1,5 +1,7 @@
 'use strict';
 
+const flatstr = require('flatstr');
+
 const Generator = require('../../../data');
 const LolomoGenerator = Generator.LolomoGenerator;
 const flatbuffers = require('../../../flatbuffers').flatbuffers;
@@ -61,7 +63,10 @@ module.exports = responder;
 
 function toBuffer(lolomo, isJSON) {
     if (isJSON) {
-        return new Buffer(JSON.stringify(lolomo));
+
+        // Flat str has significantly better performance for strings being
+        // turned into buffers.
+        return new Buffer(flatstr(JSON.stringify(lolomo)));
     }
 
     return new Buffer(lolomo);
@@ -80,9 +85,11 @@ function buildLolomo(request, clientId, isJSON) {
 
     let buffer = null;
     if (isJSON) {
-        return gen.getLolomoAsJSON(rows, columns, percentSimilar, isGraph, clientId);
+        return gen.getLolomoAsJSON(rows, columns, percentSimilar, isGraph,
+            clientId);
     }
-    const bytes = gen.getLolomoAsFBS(rows, columns, percentSimilar, isGraph, clientId);
+    const bytes = gen.getLolomoAsFBS(rows, columns, percentSimilar, isGraph,
+        clientId);
     return bytes;
 }
 

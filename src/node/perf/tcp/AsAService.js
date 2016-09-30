@@ -19,30 +19,30 @@ const AsAService = module.exports = {
         if (compress) {
             res.setHeader('Content-Encoding', 'gzip');
         }
-        
+
         if (isJSON) {
             res.setHeader('Content-Type', 'application/json');
         } else {
             res.setHeader('Content-Type', 'application/octet-stream');
         }
-        
+
         let dataBuffer = toBuffer(obj, isJSON);
         if (compress) {
             dataBuffer = zlib.gzipSync(dataBuffer);
         }
-        
+
         res.write(dataBuffer);
         res.end();
     },
 
     createTransportBuffer(buf, isJSON, compress) {
         const lenAndTypeBuf = new Buffer(5);
-        
+
         let newBuf = buf;
         if (compress) {
             newBuf = zlib.gzipSync(buf);
         }
-        
+
         const len = newBuf.length;
         lenAndTypeBuf.writeUInt32LE(len + 1, 0);
         lenAndTypeBuf.writeUInt8(isJSON ? 1 : 0, 4);
@@ -64,7 +64,7 @@ const AsAService = module.exports = {
         if (compress) {
             dataBuffer = zlib.gunzipSync(dataBuffer);
         }
-        
+
         if (isJSONRequest(buf)) {
             return JSON.parse(dataBuffer);
         }
