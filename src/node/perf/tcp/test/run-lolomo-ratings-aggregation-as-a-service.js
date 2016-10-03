@@ -134,8 +134,8 @@ function runWhenReady(lolomoClient, ratingsClient) {
     });
 
     const opts = {
-        host: programArgs.port,
-        port: programArgs.host
+        host: programArgs.host,
+        port: programArgs.port
     };
 
     const server = net.createServer(function _onServerConnection(socket) {
