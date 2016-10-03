@@ -26,7 +26,7 @@ const options = {
     port: port
 };
 
-console.log('Options', options);
+console.log('Options', JSON.stringify(programArgs, null, 4));
 
 const lolomoRequest = getLolomoRequest(rows, columns, percentSimilar, isGraph,
                                        clientId, isJSON);
