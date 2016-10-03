@@ -22,7 +22,8 @@ const AsAService = module.exports = {
             dataBuffer = zlib.gzipSync(dataBuffer);
         }
 
-        res.write(dataBuffer);
+        res.write(AsAService.createTransportBuffer(dataBuffer, isJSON,
+                                                   compress));
     },
 
     createTransportBuffer(buf, isJSON, compress) {
