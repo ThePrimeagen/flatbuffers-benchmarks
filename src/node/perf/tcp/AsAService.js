@@ -32,7 +32,6 @@ const AsAService = module.exports = {
         }
 
         res.write(dataBuffer);
-        res.end();
     },
 
     createTransportBuffer(buf, isJSON, compress) {

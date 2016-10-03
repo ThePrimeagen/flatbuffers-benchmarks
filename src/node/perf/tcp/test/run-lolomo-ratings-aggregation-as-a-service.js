@@ -122,7 +122,6 @@ function runWhenReady(lolomoClient, ratingsClient) {
         else {
             fbsCount++;
             fbsVideoCount += request.rows * request.columns;
-
         }
     });
 
@@ -145,6 +144,7 @@ function runWhenReady(lolomoClient, ratingsClient) {
             on('data', function _onData(chunk) {
                 const req = AsAService.parse(chunk, rootLolomo);
                 const isJSON = AsAService.isJSONRequest(chunk);
+                const clientId = getClientId(req, isJSON);
 
                 requestMap[clientId] = {
                     socket: socket,
