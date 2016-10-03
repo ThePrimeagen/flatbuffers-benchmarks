@@ -16,15 +16,6 @@ function toBuffer(obj, isJSON) {
 
 const AsAService = module.exports = {
     write(res, obj, isJSON, compress) {
-        if (compress) {
-            res.setHeader('Content-Encoding', 'gzip');
-        }
-
-        if (isJSON) {
-            res.setHeader('Content-Type', 'application/json');
-        } else {
-            res.setHeader('Content-Type', 'application/octet-stream');
-        }
 
         let dataBuffer = toBuffer(obj, isJSON);
         if (compress) {
