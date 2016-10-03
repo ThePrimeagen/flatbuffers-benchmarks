@@ -34,7 +34,7 @@ const client = net.connect(opts, function _onConnection() {
     client.
         on('data', function _onData(chunk) {
             count++;
-            if (count < 10000) {
+            if (count < curlTimes) {
                 return client.write(lolomoRequest);
             }
 
