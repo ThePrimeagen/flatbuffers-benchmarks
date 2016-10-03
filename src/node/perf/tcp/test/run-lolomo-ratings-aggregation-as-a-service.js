@@ -153,7 +153,9 @@ function runWhenReady(lolomoClient, ratingsClient) {
                     columns: isJSON ? req.columns : req.getColumns(),
                     lolomo: null
                 };
-                lolomoClient.write(chunk);
+
+                const sendBuf = AsAService.createTransportBuffer(chunk.slice(1), isJSON);
+                lolomoClient.write(sendBuf);
             }).
             on('error', function _onError(e) {
                 console.log('lolomo#frameError#', e);
