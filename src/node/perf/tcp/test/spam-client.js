@@ -32,7 +32,7 @@ console.log('Options', JSON.stringify(programArgs, null, 4));
 const lolomoRequest = getLolomoRequest(rows, columns, percentSimilar, isGraph,
                                        clientId, isJSON);
 const client = net.connect(options, function _onConnection() {
-    const framerStream = new FramerStream(client);
+    const framerStream = new FramingStream(client);
     framerStream.
         on('data', function _onData(chunk) {
             count++;
