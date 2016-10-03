@@ -30,7 +30,7 @@ console.log('Options', JSON.stringify(programArgs, null, 4));
 
 const lolomoRequest = getLolomoRequest(rows, columns, percentSimilar, isGraph,
                                        clientId, isJSON);
-const client = net.connect(opts, function _onConnection() {
+const client = net.connect(options, function _onConnection() {
     client.
         on('data', function _onData(chunk) {
             count++;
