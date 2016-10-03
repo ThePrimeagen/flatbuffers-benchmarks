@@ -9,7 +9,7 @@ function isJSONRequest(buf) {
 
 function toBuffer(obj, isJSON) {
     if (isJSON) {
-        return JSON.stringify(obj);
+        return new Buffer(JSON.stringify(obj));
     }
     return new Buffer(obj.bb.bytes());
 }
