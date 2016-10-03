@@ -8,6 +8,7 @@ const programArgs = require('../../../programArgs');
 const AsAService = require('../AsAService');
 const Netflix = require('../../../data/lolomo_generated').Netflix;
 const flatbuffers = require('../../../flatbuffers').flatbuffers;
+const FramingStream = require('../FramingStream');
 const Lolomo = Netflix.Lolomo;
 
 const rows = programArgs.rows;
@@ -31,7 +32,8 @@ console.log('Options', JSON.stringify(programArgs, null, 4));
 const lolomoRequest = getLolomoRequest(rows, columns, percentSimilar, isGraph,
                                        clientId, isJSON);
 const client = net.connect(options, function _onConnection() {
-    client.
+    const framerStream = new FramerStream(client);
+    framerStream.
         on('data', function _onData(chunk) {
             count++;
             if (count < curlTimes) {
