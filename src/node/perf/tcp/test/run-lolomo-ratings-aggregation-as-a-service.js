@@ -108,7 +108,7 @@ function runWhenReady(lolomoClient, ratingsClient) {
 
         mergeData(request.lolomo, request.ids, ratingsResponse, isJSON);
 
-        AsAService.write(request.res, request.lolomo, isJSON, programArgs.compress);
+        AsAService.write(request.socket, request.lolomo, isJSON, programArgs.compress);
 
         requestMap[clientId] = undefined;
 
