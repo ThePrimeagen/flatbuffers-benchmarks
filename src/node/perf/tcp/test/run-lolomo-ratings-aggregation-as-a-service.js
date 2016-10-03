@@ -7,7 +7,7 @@ const programArgs = require('../../../programArgs');
 const FramingStream = require('../FramingStream');
 const AsAService = require('../AsAService');
 const Netflix = require('../../../data/lolomo_generated').Netflix;
-const LolomoRequest = require('../../../data/lolomo-request_generated').LolomoRequest;
+const LolomoRequest = require('../../../data/lolomo-request_generated').Netflix.LolomoRequest;
 const RatingsRequest = require('../../../data/ratings-request_generated').Netflix.RatingsRequest;
 const RatingsResponse = require('../../../data/ratings-response_generated').Netflix.RatingsResponse;
 const LolomoGenerator = require('../../../data/LolomoGenerator');
@@ -15,7 +15,7 @@ const flatbuffers = require('../../../flatbuffers').flatbuffers;
 const createServer = require('../../http/server').createSimpleServer;
 
 const Lolomo = Netflix.Lolomo;
-const rootRequest = LolomoRequest.getRootAsLolomo;
+const rootRequest = LolomoRequest.getRootAsLolomoRequest;
 
 function initialize() {
     let lolomoClient = null;
