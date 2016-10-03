@@ -7,6 +7,7 @@ const programArgs = require('../../../programArgs');
 const FramingStream = require('../FramingStream');
 const AsAService = require('../AsAService');
 const Netflix = require('../../../data/lolomo_generated').Netflix;
+const LolomoRequest = require('../../../data/lolomo_generated').LolomoRequest;
 const RatingsRequest = require('../../../data/ratings-request_generated').Netflix.RatingsRequest;
 const RatingsResponse = require('../../../data/ratings-response_generated').Netflix.RatingsResponse;
 const LolomoGenerator = require('../../../data/LolomoGenerator');
@@ -14,7 +15,7 @@ const flatbuffers = require('../../../flatbuffers').flatbuffers;
 const createServer = require('../../http/server').createSimpleServer;
 
 const Lolomo = Netflix.Lolomo;
-const rootLolomo = Lolomo.getRootAsLolomo;
+const rootRequest = LolomoRequest.getRootAsLolomo;
 
 function initialize() {
     let lolomoClient = null;
@@ -142,13 +143,13 @@ function runWhenReady(lolomoClient, ratingsClient) {
         const framer = new FramingStream(socket);
         framer.
             on('data', function _onData(chunk) {
-                const req = AsAService.parse(chunk, rootLolomo);
+                const req = AsAService.parse(chunk, rootRequest);
                 const isJSON = AsAService.isJSONRequest(chunk);
                 const clientId = getClientId(req, isJSON);
 
                 requestMap[clientId] = {
                     socket: socket,
-                    isGraph: isJSON ? req.isGraph : req.isGraph(),
+                    isGraph: isJSON ? req.isGraph : true,
                     rows: isJSON ? req.rows : req.getRows(),
                     columns: isJSON ? req.columns : req.getColumns(),
                     lolomo: null
