@@ -140,7 +140,7 @@ function runWhenReady(lolomoClient, ratingsClient) {
 
     const server = net.createServer(function _onServerConnection(socket) {
 
-        const framer = new FramerStream(socket);
+        const framer = new FramingStream(socket);
         framer.
             on('data', function _onData(chunk) {
                 const req = AsAService.parse(chunk, rootLolomo);
