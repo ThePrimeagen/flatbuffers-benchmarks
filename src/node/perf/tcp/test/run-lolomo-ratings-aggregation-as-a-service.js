@@ -150,8 +150,8 @@ function runWhenReady(lolomoClient, ratingsClient) {
                 requestMap[clientId] = {
                     socket: socket,
                     isGraph: isJSON ? req.isGraph : true,
-                    rows: isJSON ? req.rows : req.getRows(),
-                    columns: isJSON ? req.columns : req.getColumns(),
+                    rows: isJSON ? req.rows : req.rows(),
+                    columns: isJSON ? req.columns : req.columns(),
                     lolomo: null
                 };
 
