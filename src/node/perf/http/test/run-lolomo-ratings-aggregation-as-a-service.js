@@ -11,7 +11,7 @@ const flatbuffers = require('../../../flatbuffers').flatbuffers;
 
 const Lolomo = Netflix.Lolomo;
 const lolomoRoot = Lolomo.getRootAsLolomo;
-const ratingRoot = RatingsResponse.getRootAsRatingsResponse; 
+const ratingRoot = RatingsResponse.getRootAsRatingsResponse;
 
 function runWhenReady() {
     const lHost = programArgs.lolomoHost;
@@ -27,14 +27,14 @@ function runWhenReady() {
     let jsonCount = 0;
     let fbsVideoCount = 0;
     let jsonVideoCount = 0;
-    
+
     const intervalId = setInterval(function _reportRPS() {
         console.log('port', programArgs.port);
         console.log('RPS(fbs): ', fbsCount / 10);
         console.log('RPS(json): ', jsonCount / 10);
         console.log('RPS(videos.fbs): ', fbsVideoCount / 10);
         console.log('RPS(videos.json): ', jsonVideoCount / 10);
-        
+
         fbsCount = jsonCount = fbsVideoCount = jsonVideoCount = 0;
     }, 10000);
 
@@ -65,14 +65,14 @@ function runWhenReady() {
                     }
                 });
         }
-        
+
         if (clientId === 0) {
             throw new Error(['ClientID = 0', clientId, rows, columns, url].join(' '));
         }
-        
+
         const lolomoRequest = LolomoGenerator.createRequest(
             clientId, rows, columns, 0, false, isJSON);
-        
+
         request(lolomoArgs, lolomoRequest, isJSON, lolomoRoot, function _onLolomo(e, lolomo) {
             if (e) {
                 throw new Error(e);
@@ -80,17 +80,17 @@ function runWhenReady() {
 
             const ids = getIds(lolomo, isJSON, false);
             const ratingRequest = buildRatingsRequest(ids, clientId, isJSON);
-            
+
             request(ratingsArgs, ratingRequest, isJSON, ratingRoot, function _onRating(e, ratingsResponse) {
                 mergeData(lolomo, ids, ratingsResponse, isJSON);
                 res.write(isJSON ? JSON.stringify(lolomo) : new Buffer(lolomo.bb.bytes()));
                 res.end();
-                
+
                 if (isJSON) {
                     jsonCount++;
                     jsonVideoCount += rows * columns;
                 }
-                
+
                 else {
                     fbsCount++;
                     fbsVideoCount += rows * columns;
@@ -106,12 +106,12 @@ function getClientId(obj, isJSON) {
 }
 
 function getIds(lolomo, isJSON, isGraph) {
-    
+
     const videoMap = {};
     const rowLength = isJSON ? lolomo.rows.length : lolomo.rowsLength();
     for (let rIdx = 0; rIdx < rowLength; ++rIdx) {
         const row = isJSON ? lolomo.rows[rIdx] : lolomo.rows(rIdx);
-        
+
         const videosLength = isJSON ? row.videos.length : row.videosLength();
         for (let vIdx = 0; vIdx < videosLength; ++vIdx) {
             const video = isJSON ? row.videos[vIdx] : row.videos(vIdx);
@@ -122,7 +122,7 @@ function getIds(lolomo, isJSON, isGraph) {
             }
         }
     }
-    
+
     return Object.keys(videoMap);
 }
 
@@ -157,10 +157,10 @@ function mergeData(lolomo, ids, res, isJSON) {
     for (let idIdx = 0; idIdx < ids.length; ++idIdx) {
         const id = ids[idIdx];
         const rating = isJSON ? res.ratings[idIdx] : res.ratings(idIdx);
-        
+
         videoMap[id] = rating;
     }
-    
+
     const rowLength = isJSON ? lolomo.rows.length : lolomo.rowsLength();
     for (let rIdx = 0; rIdx < rowLength; ++rIdx) {
         const row = isJSON ? lolomo.rows[rIdx] : lolomo.rows(rIdx);

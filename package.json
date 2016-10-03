@@ -26,10 +26,13 @@
   "homepage": "https://github.com/michaelbpaulson/fb-node-hello#readme",
   "dependencies": {
     "benchmark": "^2.1.1",
+    "bufferutil": "^1.2.1",
     "fast-json-stringify": "^0.2.0",
     "flatstr": "^1.0.3",
     "minimist": "^1.2.0",
     "restify": "^4.1.1",
-    "typedarray-to-buffer": "^3.1.2"
+    "typedarray-to-buffer": "^3.1.2",
+    "utf-8-validate": "^1.2.1",
+    "ws": "^1.1.1"
   }
 }

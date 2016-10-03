@@ -1,7 +1,5 @@
 'use strict';
 
-const restify = require('restify');
-
 const buildClient = require('./buildClient');
 const programArgs = require('../../../programArgs');
 const FramingStream = require('../FramingStream');
@@ -14,6 +12,7 @@ const flatbuffers = require('../../../flatbuffers').flatbuffers;
 const createServer = require('../../http/server').createSimpleServer;
 
 const Lolomo = Netflix.Lolomo;
+const rootLolomo = Lolomo.getRootAsLolomo;
 
 function initialize() {
     let lolomoClient = null;
@@ -132,76 +131,40 @@ function runWhenReady(lolomoClient, ratingsClient) {
         process.abort(1);
     });
 
-    createServer(programArgs.host, programArgs.port, function _getLolomo(url, res) {
-        let sim = 0;
-        let isGraph = false;
-        let clientId = 0;
-        let rows = 0;
-        let columns = 0;
-        let isJSON = true;
+    const opts = {
+        host: programArgs.port,
+        port: programArgs.host
+    };
 
+    const server = net.createServer(function _onServerConnection(socket) {
 
-        const query = url.split('?')[1];
-        if (query) {
-            query.
-            split('&').
-            forEach(function _eachParam(param) {
-                const kValue = param.split('=');
-                const key = kValue[0];
-                const value = kValue[1];
-                switch (key) {
-                    case 'rows':
-                        rows = Number(value);
-                        break;
-                    case 'columns':
-                        columns = Number(value);
-                        break;
-                    case 'clientId':
-                        clientId = Number(value);
-                        break;
-                    case 'isJSON':
-                        isJSON = value === 'true';
-                        break;
-                    case 'isGraph':
-                        isGraph = value === 'true';
-                        break;
-                    case 'sim':
-                        sim = value;
-                        break;
-                    default: break;
-                }
+        const framer = new FramerStream(socket);
+        framer.
+            on('data', function _onData(chunk) {
+                const req = AsAService.parse(chunk, rootLolomo);
+                const isJSON = AsAService.isJSONRequest(chunk);
+
+                requestMap[clientId] = {
+                    socket: socket,
+                    isGraph: isJSON ? req.isGraph : req.isGraph(),
+                    rows: isJSON ? req.rows : req.getRows(),
+                    columns: isJSON ? req.columns : req.getColumns(),
+                    lolomo: null
+                };
+                lolomoClient.write(chunk);
+            }).
+            on('error', function _onError(e) {
+                console.log('lolomo#frameError#', e);
+                process.abort(1);
             });
-        }
-
-        if (clientId === 0) {
-            console.log('ABORT---------- ClientId = 0');
-            process.exit(1);
-        }
-
-        requestMap[clientId] = {
-            res: res,
-            isGraph: isGraph,
-            rows: rows,
-            columns: columns,
-            lolomo: null
-        };
-
-        const lolomoResponse = getLolomoRequest(rows, columns, sim,
-            isGraph, clientId, isJSON);
-        lolomoClient.write(lolomoResponse);
     });
-}
 
-function getLolomoRequest(rows, columns, percentSimilar,
-                          isGraph, clientId, isJSON) {
-
-    const request = LolomoGenerator.createRequest(
-        clientId, rows, columns, percentSimilar, isGraph, isJSON);
-
-    const buffer = isJSON ? new Buffer(JSON.stringify(request)) :
-        new Buffer(request);
-
-    return AsAService.createTransportBuffer(buffer, isJSON);
+    server.listen(opts, function _onServerStart(e) {
+        console.log('started server', e);
+        if (e) {
+            process.abort(1);
+        }
+    });
 }
 
 function getClientId(obj, isJSON) {
