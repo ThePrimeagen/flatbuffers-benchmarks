@@ -1,5 +1,7 @@
 'use strict';
 
+const net = require('net');
+
 const buildClient = require('./buildClient');
 const programArgs = require('../../../programArgs');
 const FramingStream = require('../FramingStream');
