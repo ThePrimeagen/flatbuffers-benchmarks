@@ -17,7 +17,7 @@ const LogMetricsStream = function _LogMetricsStream() {
     this.jsonVideoCount = 0;
 
     const self = this;
-    const intervalId = setInterval(function _reportRPS() {
+    this._intervalId = setInterval(function _reportRPS() {
         console.log('port', programArgs.port);
         console.log('RPS(fbs): ', self.fbsCount / 10);
         console.log('RPS(json): ', self.jsonCount / 10);
@@ -75,4 +75,7 @@ LogMetricsStream.prototype._transform = function _transform(chunk, enc, cb) {
 };
 
 LogMetricsStream.prototype._flush = function _flush() { };
+LogMetricsStream.prototype.cleanUp = function cleanUp() {
+    clearInterval(this._intervalId);
+};
 

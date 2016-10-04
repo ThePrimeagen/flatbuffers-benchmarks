@@ -66,12 +66,13 @@ function runWhenReady(lolomoClient, ratingsClient, pipeLolomo, pipeRatings) {
 
         const lolomoStream = new LolomoStream(lolomoClient);
         const ratingsStream = new RatingsStream(ratingsClient);
+        const logStream = new LogMetricsStream();
         socket.
             pipe(new TFramingStream()).
             pipe(new ParseStream(rootRequest)).
             pipe(lolomoStream).
             pipe(ratingsStream).
-            pipe(new LogMetricsStream()).
+            pipe(logStream).
             pipe(socket).
             on('error', function _onError(e) {
                 console.log('lolomo#frameError#', e);
@@ -81,6 +82,7 @@ function runWhenReady(lolomoClient, ratingsClient, pipeLolomo, pipeRatings) {
             on('end', function _cleanUp() {
                 lolomoStream.cleanUp();
                 ratingsStream.cleanUp();
+                logStream.cleanUp();
             });
     });
 
