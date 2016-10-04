@@ -30,6 +30,7 @@ function toBuffer(obj, isJSON) {
 }
 
 const AsAService = module.exports = {
+    toBuffer: toBuffer,
     write(res, obj, isJSON, compress, noManipulationNeeded) {
         if (noManipulationNeeded) {
             return res.write(obj);

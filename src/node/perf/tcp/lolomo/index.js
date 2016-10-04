@@ -1,44 +1,66 @@
 'use strict';
 
 const flatstr = require('flatstr');
+const Transform = require('stream').Transform;
+const inherits = require('util').inherits;
 
-const Generator = require('../../../data');
-const LolomoGenerator = Generator.LolomoGenerator;
 const flatbuffers = require('../../../flatbuffers').flatbuffers;
-const AsAService = require('../AsAService');
+const Generator = require('../../../data');
 const random = require('../../../data/random');
-const LolomoRequest = Generator.LolomoRequest;
+const AsAService = require('../AsAService');
 const Cache = require('../Cache');
 const programArgs = require('../../../programArgs');
+const toBuffer = require('../../../toBuffer');
 
 const cache = new Cache();
+const LolomoGenerator = Generator.LolomoGenerator;
+const LolomoRequest = Generator.LolomoRequest;
 const compress = programArgs.compress;
 
-function responder(client, fullBuffer) {
-    // slice off the length portionn.
-    const buffer = fullBuffer.slice(4);
-    AsAService.parse(buffer, LolomoRequest.getRootAsLolomoRequest, false,
-                     function _parsed(e, lolomoRequest) {
-        const isJSON = AsAService.isJSONRequest(buffer);
-        const clientId = isJSON ? lolomoRequest.clientId :
-                             lolomoRequest.clientId();
-        const rows = isJSON ? lolomoRequest.rows : lolomoRequest.rows();
-        const columns = isJSON ? lolomoRequest.columns :
-                             lolomoRequest.columns();
-        const requestLength = rows * columns;
-        const key = getCacheKey(rows, columns, isJSON);
-        let data = cache.get(clientId, key);
+const objectMode = {objectMode: true};
 
-        if (!data) {
-            data = buildLolomo(lolomoRequest, clientId, isJSON);
-            cache.insert(clientId, key, data);
-        }
+const LolomoServiceStream = function _LolomoServiceStream() {
+    Transform.call(this);
+};
 
-        AsAService.write(client, data, isJSON, compress);
-    });
-}
+module.exports = LolomoServiceStream;
 
-module.exports = responder;
+inherits(LolomoServiceStream, Transform);
+
+/**
+ * Expects chunk to be a message from the framer stream.
+ *
+ * @param {{
+ *     original: Buffer,
+ *     unparsed: Buffer,
+ *     parsed: object,
+ *     isJSON: boolean
+ * }} chunk - The chunked data from the framing stream
+ */
+LolomoServiceStream.prototype._transform = function _transform(chunk, enc, cb) {
+    const isJSON = chunk.isJSON;
+    const lolomoRequest = chunk.parsed;
+    const clientId = isJSON ? lolomoRequest.clientId :
+                            lolomoRequest.clientId();
+    const rows = isJSON ? lolomoRequest.rows : lolomoRequest.rows();
+    const columns = isJSON ? lolomoRequest.columns :
+                            lolomoRequest.columns();
+    const key = getCacheKey(rows, columns, isJSON);
+    let data = cache.get(clientId, key);
+
+    if (!data) {
+        data = buildLolomo(lolomoRequest, clientId, isJSON);
+        cache.insert(clientId, key, data);
+    }
+
+    this.push(toBuffer(data, isJSON));
+
+    cb();
+};
+
+LolomoServiceStream.prototype._flush = function _flush() {
+    console.log('LolomoServiceStream#flush');
+};
 
 function buildLolomo(request, clientId, isJSON) {
     const gen = new LolomoGenerator();
