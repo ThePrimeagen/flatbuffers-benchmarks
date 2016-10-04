@@ -6,6 +6,7 @@ const ratingsAsAService = require('../ratings');
 const server = require('../server');
 const programArgs = require('../../../programArgs');
 const TFramingStream = require('../TFramingStream');
+const BufferReportStream.js = require('../BufferReportStream');
 const ParseStream = require('../ParseStream');
 const RatingsServiceStream = require('../ratings');
 const RatingsRequest = require('../../../data/ratings-request_generated').Netflix.RatingsRequest;
@@ -20,9 +21,13 @@ function _runServer(cb) {
     const server = net.
         createServer(function _onServerConnection(socket) {
             socket.
-                pipe(new FramingStream()).
+                pipe(new BufferReportStream()).
+                pipe(new TFramingStream()).
+                pipe(new BufferReportStream()).
                 pipe(new ParseStream(rootFn)).
+                pipe(new BufferReportStream()).
                 pipe(new RatingsServiceStream()).
+                pipe(new BufferReportStream()).
                 pipe(socket);
         }).
         on('error', function _onServerError(e) {
