@@ -11,9 +11,9 @@ const FramingStream = function _FramingStream(parent) {
     this._buf = null;
     this._len = 0;
     this._totalLength = 0;
-    
+
     this._parent = parent;
-    
+
     const self = this;
     parent.
         on('data', function _data(chunk) {
@@ -51,10 +51,10 @@ FramingStream.prototype._chunk = function _transform(chunk) {
     // auto assumes that the first 32 bits is an unsigned int.
     let frameMark = 0;
     const chunkLength = chunk.length;
-    
+
     // Why a doWhile?  Because they are awesome.
     do {
-        
+
         // Buf is empty, therefore there is no previous results.
         // Therefore, we must initialize our aggregator.
         if (this._buf === null) {
@@ -63,29 +63,29 @@ FramingStream.prototype._chunk = function _transform(chunk) {
                 break;
             }
         }
-        
+
 
         const remainingLength = chunkLength - frameMark;
 
         // We must frame this stream with the next incoming data.
         if (this._totalLength > this._len + remainingLength && remainingLength) {
-            
+
             this._bufs.push(chunk);
             this._bufs.push(frameMark);
             this._len += remainingLength;
-            
+
             frameMark += remainingLength;
         }
 
         // What remains in this chunk is the data we expect.
         else if (this._totalLength === this._len + remainingLength) {
-            
+
             // Pass the remaining data to the next item.
             const data = this._aggregate(chunk, frameMark);
-            
+
             this.push(data);
             this._buf = null;
-            
+
             frameMark += remainingLength;
         }
 
@@ -93,7 +93,7 @@ FramingStream.prototype._chunk = function _transform(chunk) {
         else if (remainingLength) {
             const endIndex = frameMark + (this._totalLength - this._len);
             const aggregatedData = this._aggregate(chunk, frameMark, endIndex);
-            
+
             this.push(aggregatedData);
             this._buf = null;
 
@@ -104,16 +104,16 @@ FramingStream.prototype._chunk = function _transform(chunk) {
 };
 
 FramingStream.prototype._initializeAggregator = function _initAgg(chunk, start) {
-    
+
     // Edge case, we cannot read the integer
     if (chunk.length - start < 4 && !this._lenPartial) {
         this._lenPartial = chunk.slice(start);
         return null;
     }
-    
+
     this._totalLength = chunk.readUInt32LE(start);
     this._len = 0;
-    
+
     // Preallocate the whole buffer at once.  Store an array bufs then splice
     // them into the overall buffer.
     this._buf = true;
@@ -122,18 +122,18 @@ FramingStream.prototype._initializeAggregator = function _initAgg(chunk, start) 
 };
 
 /**
- * This is the sauce of the algorithm.  
+ * This is the sauce of the algorithm.
  * @param buf
  * @private
  */
 FramingStream.prototype._aggregate = function _aggregate(chunk, startIndex, endIndex) {
     endIndex = endIndex || chunk.length;
 
-    // copy messages 
+    // copy messages
     const bufs = this._bufs;
     const chunkSliceLength = endIndex - startIndex;
     let buf = null;
-    
+
     // only alloc the buf if needed.
     if (bufs.length > 0) {
         buf = Buffer.allocUnsafe(this._totalLength);

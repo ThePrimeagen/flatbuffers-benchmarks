@@ -1,6 +1,6 @@
 'use strict';
 
-const Duplex = require('stream').Duplex;
+const Transform = require('stream').Transform;
 const inherits = require('util').inherits;
 const zlib = require('zlib');
 
@@ -8,13 +8,13 @@ const AsAService = require('./AsAService');
 const flatbuffers = require('../../flatbuffers').flatbuffers;
 
 const ParseStream = function _ParseStream(rootFunction) {
-    Duplex.call(this);
+    Transform.call(this);
     this._rootFunction = rootFunction;
 };
 
 module.exports = ParseStream;
 
-inherits(ParseStream, Duplex);
+inherits(ParseStream, Transform);
 
 /**
  * Expects chunk to be a message from the framer stream.
@@ -33,6 +33,10 @@ ParseStream.prototype._transform = function _transform(chunk, enc, cb) {
 
     this.push(chunk)
     cb();
+};
+
+ParseStream.prototype._flush = function _flush() {
+    console.log('ParseStream#flush');
 };
 
 function _parse(dataBuffer, isJSON, rootFunction) {

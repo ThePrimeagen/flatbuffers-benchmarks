@@ -84,6 +84,10 @@ FramingStream.prototype._transform = function _transform(chunk, enc, cb) {
     cb();
 };
 
+FramingStream.prototype._flush = function _flush() {
+    console.log('ParseStream#flush');
+};
+
 FramingStream.prototype._initializeAggregator = function _initAgg(chunk, start) {
 
     // Edge case, we cannot read the integer

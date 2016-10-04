@@ -179,6 +179,7 @@ function runWhenReady(lolomoClient, ratingsClient, pipeLolomo, pipeRatings) {
             }).
             on('error', function _onError(e) {
                 console.log('lolomo#frameError#', e);
+                console.log('lolomo#frameError#', e.stack);
                 process.abort(1);
             });
     });
