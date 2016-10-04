@@ -30,7 +30,10 @@ function toBuffer(obj, isJSON) {
 }
 
 const AsAService = module.exports = {
-    write(res, obj, isJSON, compress) {
+    write(res, obj, isJSON, compress, noManipulationNeeded) {
+        if (noManipulationNeeded) {
+            return res.write(obj);
+        }
 
         let dataBuffer = toBuffer(obj, isJSON);
         if (compress) {
@@ -49,7 +52,12 @@ const AsAService = module.exports = {
         const lenAndTypeBuf = new Buffer(5);
 
         const len = buf.length;
-        lenAndTypeBuf.writeUInt32LE(len + 1, 0);
+
+        // Include the length of the length byte that way the framing stream can
+        // use that as part of the buffer collection.  Its output will be an
+        // object instead of a single buffe.  This will lead to a fantastic
+        // opportunity for less copying, which should make fbs much faster.
+        lenAndTypeBuf.writeUInt32LE(len + 5, 0);
         lenAndTypeBuf.writeUInt8(isJSON ? 1 : 0, 4);
 
         return Buffer.concat([lenAndTypeBuf, buf]);

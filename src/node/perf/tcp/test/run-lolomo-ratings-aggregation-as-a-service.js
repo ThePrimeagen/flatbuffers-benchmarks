@@ -5,6 +5,8 @@ const net = require('net');
 const buildClient = require('./buildClient');
 const programArgs = require('../../../programArgs');
 const FramingStream = require('../FramingStream');
+const TFramingStream = require('../TFramingStream');
+const ParseStream = require('../ParseStream');
 const AsAService = require('../AsAService');
 const Netflix = require('../../../data/lolomo_generated').Netflix;
 const LolomoRequest = require('../../../data/lolomo-request_generated').Netflix.LolomoRequest;
@@ -21,6 +23,8 @@ const compress = programArgs.compress;
 function initialize() {
     let lolomoClient = null;
     let ratingsClient = null;
+    let pipeLolomo = null;
+    let pipeRatings = null;
 
     const lHost = programArgs.lolomoHost;
     const lPort = programArgs.lolomoPort;
@@ -32,7 +36,10 @@ function initialize() {
             throw err;
         }
 
-        lolomoClient = new FramingStream(lClient);
+        lolomoClient = lClient;
+        pipeLolomo = lolomoClient.
+            pipe(new TFramingStream()).
+            pipe(new ParseStream(Lolomo.getRootAsLolomo));
         runWhenReady(lolomoClient, ratingsClient);
     });
 
@@ -41,12 +48,15 @@ function initialize() {
             throw err;
         }
 
-        ratingsClient = new FramingStream(rClient);
-        runWhenReady(lolomoClient, ratingsClient);
+        ratingsClient = rClient;
+        pipeRatings = ratingsClient.
+            pipe(new TFramingStream()).
+            pipe(new ParseStream(RatingsResponse.getRootAsRatingsResponse));
+        runWhenReady(lolomoClient, ratingsClient, pipeLolomo, pipeRatings);
     });
 }
 
-function runWhenReady(lolomoClient, ratingsClient) {
+function runWhenReady(lolomoClient, ratingsClient, pipeLolomo, pipeRatings) {
     if (!lolomoClient || !ratingsClient) {
         return;
     }
@@ -97,41 +107,38 @@ function runWhenReady(lolomoClient, ratingsClient) {
         console.log('lolomo');
         console.log(e.message);
         console.log(e.stack);
-        process.abort(1);
+        pMaMarocess.abort(1);
     });
 
-    ratingsClient.on('data', function _ratingsResponse(ratingsBuf) {
-        AsAService.parse(ratingsBuf, RatingsResponse.getRootAsRatingsResponse,
-                         compress, function _parse(e, ratingsResponse) {
-            const isJSON = AsAService.isJSONRequest(ratingsBuf);
-            const clientId = getClientId(ratingsResponse, isJSON);
-            const request = requestMap[clientId];
+    ratingsClient.on('data', function _ratingsResponse(res) {
+        const isJSON = res.isJSON;
+        const clientId = getClientId(res, isJSON);
+        const request = requestMap[clientId];
 
-            if (!request) {
-                console.log('ratings, we have a problem');
-                console.log(ratingsBuf.toString());
-            }
+        if (!request) {
+            console.log('ratings, we have a problem');
+            console.log(res);
+        }
 
-            mergeData(request.lolomo, request.ids, ratingsResponse, isJSON);
+        mergeData(request.lolomo, request.ids, res.parsed, isJSON);
 
-            // compress the lolomo going out.
-            AsAService.write(request.socket, request.lolomo, isJSON,
-                             programArgs.compress);
+        // compress the lolomo going out.
+        AsAService.write(request.socket, request.lolomo, isJSON,
+                            programArgs.compress);
 
-            requestMap[clientId] = undefined;
+        requestMap[clientId] = undefined;
 
-            // Really I know that this is _perfect_ counting considering that
-            // request.res.send has yet to technically send out its data.
-            if (isJSON) {
-                jsonCount++;
-                jsonVideoCount += request.rows * request.columns;
-            }
+        // Really I know that this is _perfect_ counting considering that
+        // request.res.send has yet to technically send out its data.
+        if (isJSON) {
+            jsonCount++;
+            jsonVideoCount += request.rows * request.columns;
+        }
 
-            else {
-                fbsCount++;
-                fbsVideoCount += request.rows * request.columns;
-            }
-        });
+        else {
+            fbsCount++;
+            fbsVideoCount += request.rows * request.columns;
+        }
     });
 
     ratingsClient.on('error', function _ratingsError(e) {
@@ -148,25 +155,27 @@ function runWhenReady(lolomoClient, ratingsClient) {
 
     const server = net.createServer(function _onServerConnection(socket) {
 
-        const framer = new FramingStream(socket);
-        framer.
-            on('data', function _onData(chunk) {
-                AsAService.parse(chunk, rootRequest, false,
-                                 function _parse(e, req) {
-                    const isJSON = AsAService.isJSONRequest(chunk);
-                    const clientId = getClientId(req, isJSON);
+        socket.
+            pipe(new TFramingStream()).
+            pipe(new ParseStream(rootRequest)).
+            on('data', function _onData(data) {
+                const isJSON = data.isJSON;
+                const req = data.parsed;
+                const clientId = data.clientId = getClientId(req, isJSON);
+                const buf = data.original;
 
-                    requestMap[clientId] = {
-                        socket: socket,
-                        isGraph: isJSON ? req.isGraph : true,
-                        rows: isJSON ? req.rows : req.rows(),
-                        columns: isJSON ? req.columns : req.columns(),
-                        lolomo: null
-                    };
+                data.lolomo = null;
+                data.socket = null;
 
-                    AsAService.write(lolomoClient, chunk.slice(1), isJSON,
-                                     false);
-                });
+                requestMap[clientId] = {
+                    socket: socket,
+                    isGraph: isJSON ? req.isGraph : true,
+                    rows: isJSON ? req.rows : req.rows(),
+                    columns: isJSON ? req.columns : req.columns(),
+                    lolomo: null
+                };
+
+                AsAService.write(lolomoClient, buf, isJSON, false, true);
             }).
             on('error', function _onError(e) {
                 console.log('lolomo#frameError#', e);
