@@ -30,8 +30,8 @@ inherits(ParseStream, Transform);
  */
 ParseStream.prototype._transform = function _transform(chunk, enc, cb) {
 
-    const isJSON = chunk.isJSON = isJSONRequest(chunk.unparsed);
-    chunk.parsed = _parse(chunk.unparsed.slice(1), isJSON, rootFunction);
+    const isJSON = chunk.isJSON = AsAService.isJSONRequest(chunk.unparsed);
+    chunk.parsed = _parse(chunk.unparsed.slice(1), isJSON, this._rootFunction);
 
     this.push(chunk)
     cb();

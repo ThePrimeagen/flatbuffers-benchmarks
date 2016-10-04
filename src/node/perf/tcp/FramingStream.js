@@ -118,7 +118,10 @@ FramingStream.prototype._initializeAggregator = function _initAgg(chunk, start) 
     // them into the overall buffer.
     this._buf = true;
     this._bufs = [];
-    return start + 4;
+
+    // No need to ignore the length.  we are going to keep that as part of a
+    // super cool optimization.  A partial zero copy arch.
+    return start;
 };
 
 /**
