@@ -10,6 +10,7 @@ const LolomoStream = require('../LolomoStream');
 const RatingsStream = require('../RatingsStream');
 const BufferReportStream = require('../BufferReportStream');
 const PluckOutputStream = require('../PluckOutputStream');
+const LogGrabberStream = require('../LogGrabberStream');
 const ParseStream = require('../ParseStream');
 const AsAService = require('../AsAService');
 const Netflix = require('../../../data/lolomo_generated').Netflix;
@@ -67,6 +68,28 @@ setInterval(function _reportRPS() {
     fbsCount = jsonCount = fbsVideoCount = jsonVideoCount = 0;
 }, 10000);
 
+function loggerClosure() {
+    return function _innerLogger(data) {
+        const isJSON = data.isJSON;
+        const req = data.parsed;
+        const rows = isJSON ? req.rows : req.rows();
+        const columns = isJSON ? req.columns : req.columns();
+        const count = rows * columns;
+
+        if (isJSON) {
+            jsonCount++;
+            jsonVideoCount += count;
+        }
+
+        else {
+            fbsCount++;
+            fbsVideoCount += count;
+        }
+    };
+}
+
+const logger = loggerClosure();
+
 function runWhenReady(lolomoClient, ratingsClient, pipeLolomo, pipeRatings) {
     if (!lolomoClient || !ratingsClient) {
         return;
@@ -85,24 +108,7 @@ function runWhenReady(lolomoClient, ratingsClient, pipeLolomo, pipeRatings) {
             pipe(new LolomoStream(lolomoClient)).
             pipe(new RatingsStream(ratingsClient)).
             pipe(new PluckOutputStream()).
-            on('data', function _pluckRes(data) {
-
-                const isJSON = data.isJSON;
-                const req = data.parsed;
-                const rows = isJSON ? req.rows : req.rows();
-                const columns = isJSON ? req.columns : req.columns();
-                const count = rows * columns;
-
-                if (isJSON) {
-                    jsonCount++;
-                    jsonVideoCount += count;
-                }
-
-                else {
-                    fbsCount++;
-                    fbsVideoCount += count;
-                }
-            }).
+            pipe(new LogGrabberStream(logger)).
             pipe(socket).
             on('error', function _onError(e) {
                 console.log('lolomo#frameError#', e);
