@@ -37,7 +37,7 @@ const RatingsStream = function _RatingsStream(ratingClient) {
             mergeData(request.lolomo, request.ids, data.parsed, isJSON);
 
             // Pushes the request object to the next client.
-            self._push(request);
+            self.push(request);
             idMap[clientId] = undefined;
         }).
         on('error', function _onRatingData(e) {
@@ -71,6 +71,8 @@ RatingsStream.prototype._transform = function _transform(chunk, enc, cb) {
     if (this._idMap[clientId]) {
         throw new Error(`This clientId ${clientId} is already in use`);
     }
+
+    this._idMap[clientId] = chunk;
 
     const ids = chunk.ids = getIds(chunk.lolomo, isJSON, false);
     const ratingRequest = buildRatingsRequest(ids, clientId, isJSON);

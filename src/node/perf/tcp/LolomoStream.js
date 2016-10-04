@@ -34,7 +34,7 @@ const LolomoStream = function _LolomoStream(lolomoClient) {
             request.lolomoRaw = data.original;
 
             // Pushes the request object to the next client.
-            self._push(request);
+            self.push(request);
             idMap[clientId] = undefined;
         }).
         on('error', function _onLolomoData(e) {
