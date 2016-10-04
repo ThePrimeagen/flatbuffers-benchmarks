@@ -9,6 +9,7 @@ const RatingsResponse = require('../../data/ratings-response_generated').Netflix
 const TFramingStream = require('./TFramingStream');
 const ParseStream = require('./ParseStream');
 const programArgs = require('../../programArgs');
+const flatbuffers = require('../../flatbuffers').flatbuffers;
 
 const objectMode = {objectMode: true};
 const rootResponse = RatingsResponse.getRootAsRatingsResponse;

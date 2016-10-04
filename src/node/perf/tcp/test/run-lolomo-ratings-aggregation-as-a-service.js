@@ -9,7 +9,7 @@ const TFramingStream = require('../TFramingStream');
 const LolomoStream = require('../LolomoStream');
 const RatingsStream = require('../RatingsStream');
 const BufferReportStream = require('../BufferReportStream');
-const LogMetricsStream = require('../LogMetricsStream');
+const PluckOutputStream = require('../PluckOutputStream');
 const ParseStream = require('../ParseStream');
 const AsAService = require('../AsAService');
 const Netflix = require('../../../data/lolomo_generated').Netflix;
@@ -52,6 +52,21 @@ function initialize() {
     });
 }
 
+let fbsCount = 0;
+let jsonCount = 0;
+let fbsVideoCount = 0;
+let jsonVideoCount = 0;
+
+setInterval(function _reportRPS() {
+    console.log('port', programArgs.port);
+    console.log('RPS(fbs): ', fbsCount / 10);
+    console.log('RPS(json): ', jsonCount / 10);
+    console.log('RPS(videos.fbs): ', fbsVideoCount / 10);
+    console.log('RPS(videos.json): ', jsonVideoCount / 10);
+
+    fbsCount = jsonCount = fbsVideoCount = jsonVideoCount = 0;
+}, 10000);
+
 function runWhenReady(lolomoClient, ratingsClient, pipeLolomo, pipeRatings) {
     if (!lolomoClient || !ratingsClient) {
         return;
@@ -62,17 +77,32 @@ function runWhenReady(lolomoClient, ratingsClient, pipeLolomo, pipeRatings) {
         port: programArgs.port
     };
 
-    const logStream = new LogMetricsStream();
     const server = net.createServer(function _onServerConnection(socket) {
 
-        const lolomoStream = new LolomoStream(lolomoClient);
-        const ratingsStream = new RatingsStream(ratingsClient);
         socket.
             pipe(new TFramingStream()).
             pipe(new ParseStream(rootRequest)).
-            pipe(lolomoStream).
-            pipe(ratingsStream).
-            pipe(logStream).
+            pipe(new LolomoStream(lolomoClient)).
+            pipe(new RatingsStream(ratingsClient)).
+            pipe(new PluckOutputStream()).
+            on('data', function _pluckRes(data) {
+
+                const isJSON = data.isJSON;
+                const req = data.parsed;
+                const rows = isJSON ? req.rows : req.rows();
+                const columns = isJSON ? req.columns : req.columns();
+                const count = rows * columns;
+
+                if (isJSON) {
+                    jsonCount++;
+                    jsonVideoCount += count;
+                }
+
+                else {
+                    fbsCount++;
+                    fbsVideoCount += count;
+                }
+            }).
             pipe(socket).
             on('error', function _onError(e) {
                 console.log('lolomo#frameError#', e);
