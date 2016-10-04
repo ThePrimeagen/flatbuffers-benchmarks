@@ -1,6 +1,7 @@
 'use strict';
 const net = require('net');
 const flatstr = require('flatstr');
+const zlib = require('zlib');
 
 const data = require('../../../data/');
 const LolomoGenerator = require('../../../data/LolomoGenerator');
@@ -21,6 +22,7 @@ const port = programArgs.port;
 const percentSimilar = programArgs.percentSimilar;
 const isGraph = programArgs.isGraph;
 const debug = programArgs.debug;
+const compress = programArgs.compress;
 
 let count = 0;
 const options = {
@@ -37,6 +39,10 @@ const client = net.connect(options, function _onConnection() {
     framerStream.
         on('data', function _onData(chunk) {
             if (debug) {
+                if (compress) {
+                    chunk = zlib.gunzipSync(chunk);
+                }
+
                 if (isJSON) {
                     console.log(JSON.stringify(JSON.parse(chunk.toString()), null, 4));
                 }
