@@ -20,7 +20,7 @@ const compress = programArgs.compress;
 const objectMode = {objectMode: true};
 
 const LolomoServiceStream = function _LolomoServiceStream() {
-    Transform.call(this);
+    Transform.call(this, objectMode);
 };
 
 module.exports = LolomoServiceStream;
