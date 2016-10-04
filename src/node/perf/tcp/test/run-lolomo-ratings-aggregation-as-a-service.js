@@ -89,7 +89,7 @@ function runWhenReady(lolomoClient, ratingsClient) {
             request.ids = ids;
 
             const ratingRequest = buildRatingsRequest(ids, clientId, isJSON);
-            AsAService.write(ratingsClient, ratingsRequest, isJSON, compress);
+            AsAService.write(ratingsClient, ratingRequest, isJSON, compress);
 
             ratingsClient.write(ratingRequest);
         });
@@ -165,7 +165,6 @@ function runWhenReady(lolomoClient, ratingsClient) {
                         columns: isJSON ? req.columns : req.columns(),
                         lolomo: null
                     };
-
 
                     AsAService.write(lolomoClient, chunk.slice(1), isJSON,
                                      compress);
