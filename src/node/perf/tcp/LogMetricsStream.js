@@ -61,7 +61,13 @@ LogMetricsStream.prototype._transform = function _transform(chunk, enc, cb) {
         this.fbsVideoCount += count;
     }
 
-    this.push(chunk.lolomoRaw);
+    if (isJSON) {
+        this.push(new Buffer(JSON.stringify(chunk.lolomo)));
+    }
+    else {
+        this.push(chunk.lolomoRaw);
+    }
+
     cb();
 };
 
