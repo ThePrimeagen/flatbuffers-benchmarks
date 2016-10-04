@@ -5,9 +5,10 @@ const inherits = require('util').inherits;
 
 // BIG pool size.
 Buffer.poolSize = 1048576;
+const objectMode = {objectMode: true};
 
 const FramingStream = function _FramingStream() {
-    Transform.call(this);
+    Transform.call(this, objectMode);
     this._buf = null;
     this._len = 0;
     this._totalLength = 0;

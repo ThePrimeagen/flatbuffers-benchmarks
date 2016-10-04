@@ -7,8 +7,10 @@ const zlib = require('zlib');
 const AsAService = require('./AsAService');
 const flatbuffers = require('../../flatbuffers').flatbuffers;
 
+const objectMode = {objectMode: true};
+
 const ParseStream = function _ParseStream(rootFunction) {
-    Transform.call(this);
+    Transform.call(this, objectMode);
     this._rootFunction = rootFunction;
 };
 
