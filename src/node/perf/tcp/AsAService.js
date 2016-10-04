@@ -62,12 +62,15 @@ const AsAService = module.exports = {
 
         if (compress) {
             zlib.gunzip(zippedBuffer, function _unZip(e, dataBuffer) {
-                cb(_parse(dataBuffer, isJSON, rootFunction));
+                if (e) {
+                    return cb(e);
+                }
+                cb(null, _parse(dataBuffer, isJSON, rootFunction));
             });
             return;
         }
 
-        cb(_parse(zippedBuffer, isJSON, rootFunction));
+        cb(null, _parse(zippedBuffer, isJSON, rootFunction));
     }
 };
 
