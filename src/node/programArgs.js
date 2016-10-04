@@ -38,9 +38,12 @@ const defaultArgs = Object.
         compress: false,
 
         // for spam client defaults
-        // This will use rows, columns, host, port, and clientId 
+        // This will use rows, columns, host, port, and clientId
         // to construct the URL to hit for spam clients.
-        curlTimes: 1000
+        curlTimes: 1000,
+
+        // For debugging purposes only.
+        debug: false
     });
 
 module.exports = defaultArgs;

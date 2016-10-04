@@ -20,6 +20,7 @@ const host = programArgs.host;
 const port = programArgs.port;
 const percentSimilar = programArgs.percentSimilar;
 const isGraph = programArgs.isGraph;
+const debug = programArgs.debug;
 
 let count = 0;
 const options = {
@@ -35,6 +36,14 @@ const client = net.connect(options, function _onConnection() {
     const framerStream = new FramingStream(client);
     framerStream.
         on('data', function _onData(chunk) {
+            if (debug) {
+                if (isJSON) {
+                    console.log(JSON.stringify(JSON.parse(chunk.toString()), null, 4));
+                }
+                else {
+                    console.log(chunk);
+                }
+            }
             count++;
             if (count < curlTimes) {
                 return client.write(lolomoRequest);
