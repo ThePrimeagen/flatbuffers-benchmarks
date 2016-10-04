@@ -19,13 +19,13 @@ const LogMetricsStream = function _LogMetricsStream() {
     const self = this;
     const intervalId = setInterval(function _reportRPS() {
         console.log('port', programArgs.port);
-        console.log('RPS(fbs): ', this.fbsCount / 10);
-        console.log('RPS(json): ', this.jsonCount / 10);
-        console.log('RPS(videos.fbs): ', this.fbsVideoCount / 10);
-        console.log('RPS(videos.json): ', this.jsonVideoCount / 10);
+        console.log('RPS(fbs): ', self.fbsCount / 10);
+        console.log('RPS(json): ', self.jsonCount / 10);
+        console.log('RPS(videos.fbs): ', self.fbsVideoCount / 10);
+        console.log('RPS(videos.json): ', self.jsonVideoCount / 10);
 
-        this.fbsCount = this.jsonCount =
-            this.fbsVideoCount = this.jsonVideoCount = 0;
+        self.fbsCount = self.jsonCount =
+            self.fbsVideoCount = self.jsonVideoCount = 0;
     }, 10000);
 };
 

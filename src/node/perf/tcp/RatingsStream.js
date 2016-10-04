@@ -86,7 +86,7 @@ RatingsStream.prototype._transform = function _transform(chunk, enc, cb) {
 RatingsStream.prototype._flush = function _flush() { };
 
 RatingsStream.prototype.cleanUp = function cleanUp() {
-    this._ratingsClient.unpipe(this._framer);
+    this._ratingClient.unpipe(this._framer);
 };
 
 function _getId(parsed, isJSON) {
