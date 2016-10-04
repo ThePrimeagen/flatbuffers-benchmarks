@@ -9,68 +9,34 @@ const AsAService = require('../AsAService');
 const random = require('../../../data/random');
 const LolomoRequest = Generator.LolomoRequest;
 const Cache = require('../Cache');
-const cache = new Cache();
 const programArgs = require('../../../programArgs');
 
+const cache = new Cache();
 const compress = programArgs.compress;
-let fbsCount = 0;
-let jsonCount = 0;
-let fbsVideoCount = 0;
-let jsonVideoCount = 0;
-
-
-const intervalId = setInterval(function _reportRPS() {
-    console.log('-- Lolomo Port --', programArgs.port);
-    console.log('RPS(fbs): ', fbsCount / 10);
-    console.log('RPS(json): ', jsonCount / 10);
-    console.log('RPS(videos.fbs): ', fbsVideoCount / 10);
-    console.log('RPS(videos.json): ', jsonVideoCount / 10);
-
-    fbsCount = jsonCount = fbsVideoCount = jsonVideoCount = 0;
-}, 10000);
 
 function responder(client, buffer) {
-    const isJSON = AsAService.isJSONRequest(buffer);
-    const lolomoRequest = AsAService.parse(buffer, LolomoRequest.getRootAsLolomoRequest);
-    const clientId = isJSON ? lolomoRequest.clientId : lolomoRequest.clientId();
-    const rows = isJSON ? lolomoRequest.rows : lolomoRequest.rows();
-    const columns = isJSON ? lolomoRequest.columns : lolomoRequest.columns();
-    const requestLength = rows * columns;
-    const key = getCacheKey(rows, columns, isJSON);
-    let data = cache.get(clientId, key);
+    AsAService.parse(buffer, LolomoRequest.getRootAsLolomoRequest, compress,
+                     function _parsed(lolomoRequest) {
+        const isJSON = AsAService.isJSONRequest(buffer);
+        const clientId = isJSON ? lolomoRequest.clientId :
+                             lolomoRequest.clientId();
+        const rows = isJSON ? lolomoRequest.rows : lolomoRequest.rows();
+        const columns = isJSON ? lolomoRequest.columns :
+                             lolomoRequest.columns();
+        const requestLength = rows * columns;
+        const key = getCacheKey(rows, columns, isJSON);
+        let data = cache.get(clientId, key);
 
-    if (!data) {
-        data = buildLolomo(lolomoRequest, clientId, isJSON);
-        cache.insert(clientId, key, data);
-    }
+        if (!data) {
+            data = buildLolomo(lolomoRequest, clientId, isJSON);
+            cache.insert(clientId, key, data);
+        }
 
-    // Reporting
-    if (isJSON) {
-        jsonCount++;
-        jsonVideoCount += requestLength;
-    }
-
-    else {
-        fbsCount++;
-        fbsVideoCount += requestLength;
-    }
-
-    const outBuf = toBuffer(data, isJSON);
-    client.write(AsAService.createTransportBuffer(outBuf, isJSON, compress));
+        AsAService.write(client, data, isJSON, compress);
+    });
 }
 
 module.exports = responder;
-
-function toBuffer(lolomo, isJSON) {
-    if (isJSON) {
-
-        // Flat str has significantly better performance for strings being
-        // turned into buffers.
-        return new Buffer(flatstr(JSON.stringify(lolomo)));
-    }
-
-    return new Buffer(lolomo);
-}
 
 function buildLolomo(request, clientId, isJSON) {
     const gen = new LolomoGenerator();

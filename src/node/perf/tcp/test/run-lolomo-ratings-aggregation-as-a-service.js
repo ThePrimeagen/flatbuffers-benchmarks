@@ -16,6 +16,7 @@ const createServer = require('../../http/server').createSimpleServer;
 
 const Lolomo = Netflix.Lolomo;
 const rootRequest = LolomoRequest.getRootAsLolomoRequest;
+const compress = programArgs.compress;
 
 function initialize() {
     let lolomoClient = null;
@@ -70,23 +71,28 @@ function runWhenReady(lolomoClient, ratingsClient) {
     }, 10000);
 
     lolomoClient.on('data', function _lolomoResponse(lolomoBuf) {
-        const lolomo = AsAService.parse(lolomoBuf, Lolomo.getRootAsLolomo, programArgs.compress);
-        const isJSON = AsAService.isJSONRequest(lolomoBuf);
-        const clientId = getClientId(lolomo, isJSON);
-        const request = requestMap[clientId];
+        AsAService.parse(lolomoBuf, Lolomo.getRootAsLolomo, compress,
+                         function _parsed(e, lolomo) {
 
-        if (!request) {
-            console.log('Lolomo, we have a problem');
-            console.log(lolomoBuf.toString());
-        }
+            const isJSON = AsAService.isJSONRequest(lolomoBuf);
+            const clientId = getClientId(lolomo, isJSON);
+            const request = requestMap[clientId];
 
-        const ids = getIds(lolomo, isJSON, request.isGraph);
+            if (!request) {
+                console.log('Lolomo, we have a problem');
+                console.log(lolomoBuf.toString());
+            }
 
-        request.lolomo = lolomo;
-        request.ids = ids;
+            const ids = getIds(lolomo, isJSON, request.isGraph);
 
-        const ratingRequest = buildRatingsRequest(ids, clientId, isJSON);
-        ratingsClient.write(ratingRequest);
+            request.lolomo = lolomo;
+            request.ids = ids;
+
+            const ratingRequest = buildRatingsRequest(ids, clientId, isJSON);
+            AsAService.write(ratingsClient, ratingsRequest, isJSON, compress);
+
+            ratingsClient.write(ratingRequest);
+        });
     });
 
     lolomoClient.on('error', function _lolomoError(e) {
@@ -97,33 +103,37 @@ function runWhenReady(lolomoClient, ratingsClient) {
     });
 
     ratingsClient.on('data', function _ratingsResponse(ratingsBuf) {
-        const ratingsResponse = AsAService.parse(ratingsBuf, RatingsResponse.getRootAsRatingsResponse);
-        const isJSON = AsAService.isJSONRequest(ratingsBuf);
-        const clientId = getClientId(ratingsResponse, isJSON);
-        const request = requestMap[clientId];
+        AsAService.parse(ratingsBuf, RatingsResponse.getRootAsRatingsResponse,
+                         compress, function _parse(e, ratingsResponse) {
+            const isJSON = AsAService.isJSONRequest(ratingsBuf);
+            const clientId = getClientId(ratingsResponse, isJSON);
+            const request = requestMap[clientId];
 
-        if (!request) {
-            console.log('ratings, we have a problem');
-            console.log(ratingsBuf.toString());
-        }
+            if (!request) {
+                console.log('ratings, we have a problem');
+                console.log(ratingsBuf.toString());
+            }
 
-        mergeData(request.lolomo, request.ids, ratingsResponse, isJSON);
+            mergeData(request.lolomo, request.ids, ratingsResponse, isJSON);
 
-        AsAService.write(request.socket, request.lolomo, isJSON, programArgs.compress);
+            // compress the lolomo going out.
+            AsAService.write(request.socket, request.lolomo, isJSON,
+                             programArgs.compress);
 
-        requestMap[clientId] = undefined;
+            requestMap[clientId] = undefined;
 
-        // Really I know that this is _perfect_ counting considering that request.res.send has
-        // yet to technically send out its data.
-        if (isJSON) {
-            jsonCount++;
-            jsonVideoCount += request.rows * request.columns;
-        }
+            // Really I know that this is _perfect_ counting considering that
+            // request.res.send has yet to technically send out its data.
+            if (isJSON) {
+                jsonCount++;
+                jsonVideoCount += request.rows * request.columns;
+            }
 
-        else {
-            fbsCount++;
-            fbsVideoCount += request.rows * request.columns;
-        }
+            else {
+                fbsCount++;
+                fbsVideoCount += request.rows * request.columns;
+            }
+        });
     });
 
     ratingsClient.on('error', function _ratingsError(e) {
@@ -143,20 +153,22 @@ function runWhenReady(lolomoClient, ratingsClient) {
         const framer = new FramingStream(socket);
         framer.
             on('data', function _onData(chunk) {
-                const req = AsAService.parse(chunk, rootRequest);
-                const isJSON = AsAService.isJSONRequest(chunk);
-                const clientId = getClientId(req, isJSON);
+                AsAService.parse(chunk, rootRequest, false,
+                                 function _parse(e, req) {
+                    const isJSON = AsAService.isJSONRequest(chunk);
+                    const clientId = getClientId(req, isJSON);
 
-                requestMap[clientId] = {
-                    socket: socket,
-                    isGraph: isJSON ? req.isGraph : true,
-                    rows: isJSON ? req.rows : req.rows(),
-                    columns: isJSON ? req.columns : req.columns(),
-                    lolomo: null
-                };
+                    requestMap[clientId] = {
+                        socket: socket,
+                        isGraph: isJSON ? req.isGraph : true,
+                        rows: isJSON ? req.rows : req.rows(),
+                        columns: isJSON ? req.columns : req.columns(),
+                        lolomo: null
+                    };
 
-                const sendBuf = AsAService.createTransportBuffer(chunk.slice(1), isJSON);
-                lolomoClient.write(sendBuf);
+                    AsAService.write(lolomoClient, chunk.slice(1), isJSON,
+                                     compress);
+                });
             }).
             on('error', function _onError(e) {
                 console.log('lolomo#frameError#', e);
@@ -200,10 +212,10 @@ function getIds(lolomo, isJSON, isGraph) {
 function buildRatingsRequest(ids, clientId, isJSON) {
     let request = null;
     if (isJSON) {
-        request = JSON.stringify({
+        return {
             videos: ids,
             clientId: clientId
-        });
+        };
     }
 
     else {
@@ -217,10 +229,8 @@ function buildRatingsRequest(ids, clientId, isJSON) {
         const rOffset = RatingsRequest.endRatingsRequest(bb);
         RatingsRequest.finishRatingsRequestBuffer(bb, rOffset);
 
-        request = bb.asUint8Array();
+        return bb.asUint8Array();
     }
-    const buffer = new Buffer(request);
-    return AsAService.createTransportBuffer(buffer, isJSON);
 }
 
 function mergeData(lolomo, ids, res, isJSON) {
