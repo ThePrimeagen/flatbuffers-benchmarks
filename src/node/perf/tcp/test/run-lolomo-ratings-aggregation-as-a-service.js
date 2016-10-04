@@ -90,8 +90,6 @@ function runWhenReady(lolomoClient, ratingsClient) {
 
             const ratingRequest = buildRatingsRequest(ids, clientId, isJSON);
             AsAService.write(ratingsClient, ratingRequest, isJSON, compress);
-
-            ratingsClient.write(ratingRequest);
         });
     });
 
@@ -167,7 +165,7 @@ function runWhenReady(lolomoClient, ratingsClient) {
                     };
 
                     AsAService.write(lolomoClient, chunk.slice(1), isJSON,
-                                     compress);
+                                     false);
                 });
             }).
             on('error', function _onError(e) {

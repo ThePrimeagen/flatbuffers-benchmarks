@@ -41,7 +41,7 @@ const client = net.connect(options, function _onConnection() {
                     console.log(JSON.stringify(JSON.parse(chunk.toString()), null, 4));
                 }
                 else {
-                    console.log(chunk);
+                    console.log(chunk.toString());
                 }
             }
             count++;

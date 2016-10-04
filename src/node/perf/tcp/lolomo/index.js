@@ -15,7 +15,7 @@ const cache = new Cache();
 const compress = programArgs.compress;
 
 function responder(client, buffer) {
-    AsAService.parse(buffer, LolomoRequest.getRootAsLolomoRequest, compress,
+    AsAService.parse(buffer, LolomoRequest.getRootAsLolomoRequest, false,
                      function _parsed(e, lolomoRequest) {
         const isJSON = AsAService.isJSONRequest(buffer);
         const clientId = isJSON ? lolomoRequest.clientId :
