@@ -3,6 +3,8 @@
 const Transform = require('stream').Transform;
 const inherits = require('util').inherits;
 const programArgs = require('../../programArgs');
+const toBuffer = require('../../toBuffer');
+const AsAService = require('./AsAService');
 
 const objectMode = {objectMode: true};
 
@@ -62,7 +64,8 @@ LogMetricsStream.prototype._transform = function _transform(chunk, enc, cb) {
     }
 
     if (isJSON) {
-        this.push(new Buffer(JSON.stringify(chunk.lolomo)));
+        const buffer = toBuffer(chunk.lolomo, isJSON);
+        this.push(AsAService.createTransportBuffer(buffer, isJSON));
     }
     else {
         this.push(chunk.lolomoRaw);
