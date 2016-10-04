@@ -17,12 +17,13 @@ const compress = programArgs.compress;
 const RatingsStream = function _RatingsStream(ratingClient) {
     Transform.call(this, objectMode);
     this._ratingClient = ratingClient;
+    this._framer = new TFramingStream();
 
     const idMap = this._idMap = {};
     const self = this;
 
     ratingClient.
-        pipe(new TFramingStream()).
+        pipe(this._framer).
         pipe(new ParseStream(rootResponse)).
         on('data', function _onRatingsData(data) {
             const isJSON = data.isJSON;
@@ -83,6 +84,10 @@ RatingsStream.prototype._transform = function _transform(chunk, enc, cb) {
 };
 
 RatingsStream.prototype._flush = function _flush() { };
+
+RatingsStream.prototype.cleanUp = function cleanUp() {
+    this._ratingsClient.unpipe(this._framer);
+};
 
 function _getId(parsed, isJSON) {
     return isJSON ? parsed.clientId : parsed.clientId();

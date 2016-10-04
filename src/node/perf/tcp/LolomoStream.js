@@ -14,12 +14,13 @@ const rootLolomo = Lolomo.getRootAsLolomo;
 const LolomoStream = function _LolomoStream(lolomoClient) {
     Transform.call(this, objectMode);
     this._lolomoClient = lolomoClient;
+    this._framer = new TFramingStream();
 
     const idMap = this._idMap = {};
     const self = this;
 
     lolomoClient.
-        pipe(new TFramingStream()).
+        pipe(this._framer).
         pipe(new ParseStream(rootLolomo)).
         on('data', function _onLolomoData(data) {
             const isJSON = data.isJSON;
@@ -79,6 +80,9 @@ LolomoStream.prototype._transform = function _transform(chunk, enc, cb) {
 };
 
 LolomoStream.prototype._flush = function _flush() { };
+LolomoStream.prototype.cleanUp = function cleanUp() {
+    this._lolomoClient.unpipe(this._framer);
+};
 
 function _getId(parsed, isJSON) {
     return isJSON ? parsed.clientId : parsed.clientId();

@@ -64,17 +64,23 @@ function runWhenReady(lolomoClient, ratingsClient, pipeLolomo, pipeRatings) {
 
     const server = net.createServer(function _onServerConnection(socket) {
 
+        const lolomoStream = new LolomoStream(lolomoClient);
+        const ratingsStream = new RatingsStream(ratingsClient);
         socket.
             pipe(new TFramingStream()).
             pipe(new ParseStream(rootRequest)).
-            pipe(new LolomoStream(lolomoClient)).
-            pipe(new RatingsStream(ratingsClient)).
+            pipe(lolomoStream).
+            pipe(ratingsStream).
             pipe(new LogMetricsStream()).
             pipe(socket).
             on('error', function _onError(e) {
                 console.log('lolomo#frameError#', e);
                 console.log('lolomo#frameError#', e.stack);
                 process.abort(1);
+            }).
+            on('end', function _cleanUp() {
+                lolomoStream.cleanUp();
+                ratingsStream.cleanUp();
             });
     });
 
