@@ -37,9 +37,7 @@ ParseStream.prototype._transform = function _transform(chunk, enc, cb) {
     cb();
 };
 
-ParseStream.prototype._flush = function _flush() {
-    console.log('ParseStream#flush');
-};
+ParseStream.prototype._flush = function _flush() { };
 
 function _parse(dataBuffer, isJSON, rootFunction) {
     if (isJSON) {

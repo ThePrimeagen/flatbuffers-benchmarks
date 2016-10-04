@@ -65,7 +65,5 @@ LogMetricsStream.prototype._transform = function _transform(chunk, enc, cb) {
     cb();
 };
 
-LogMetricsStream.prototype._flush = function _flush() {
-    console.log('LogMetricsStream#flush');
-};
+LogMetricsStream.prototype._flush = function _flush() { };
 

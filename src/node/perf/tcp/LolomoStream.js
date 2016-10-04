@@ -78,9 +78,7 @@ LolomoStream.prototype._transform = function _transform(chunk, enc, cb) {
     cb();
 };
 
-LolomoStream.prototype._flush = function _flush() {
-    console.log('LolomoStream#flush');
-};
+LolomoStream.prototype._flush = function _flush() { };
 
 function _getId(parsed, isJSON) {
     return isJSON ? parsed.clientId : parsed.clientId();

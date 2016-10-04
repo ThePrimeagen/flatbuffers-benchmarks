@@ -20,7 +20,5 @@ BufferReportStream.prototype._transform = function _transform(chunk, enc, cb) {
     cb();
 };
 
-BufferReportStream.prototype._flush = function _flush() {
-    console.log('BufferReportStream#flush');
-};
+BufferReportStream.prototype._flush = function _flush() { };
 

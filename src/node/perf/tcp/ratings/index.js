@@ -48,9 +48,7 @@ RatingsServiceStream.prototype._transform = function _transform(chunk, enc, cb) 
     cb();
 };
 
-RatingsServiceStream.prototype._flush = function _flush() {
-    console.log('RatingsServiceStream#flush');
-};
+RatingsServiceStream.prototype._flush = function _flush() { };
 
 function fillRequest(request, clientId, isJSON) {
     let videoMap = cache.get(clientId);

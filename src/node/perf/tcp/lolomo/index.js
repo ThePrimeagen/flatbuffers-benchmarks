@@ -58,9 +58,7 @@ LolomoServiceStream.prototype._transform = function _transform(chunk, enc, cb) {
     cb();
 };
 
-LolomoServiceStream.prototype._flush = function _flush() {
-    console.log('LolomoServiceStream#flush');
-};
+LolomoServiceStream.prototype._flush = function _flush() { };
 
 function buildLolomo(request, clientId, isJSON) {
     const gen = new LolomoGenerator();

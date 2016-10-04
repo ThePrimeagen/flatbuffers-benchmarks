@@ -20,13 +20,13 @@ function _runServer(cb) {
     const server = net.
         createServer(function _onServerConnection(socket) {
             socket.
-                pipe(new BufferReportStream('Raw')).
+//                pipe(new BufferReportStream('Raw')).
                 pipe(new TFramingStream()).
-                pipe(new BufferReportStream('After Framing')).
+ //               pipe(new BufferReportStream('After Framing')).
                 pipe(new ParseStream(rootFn)).
-                pipe(new BufferReportStream('After Parsing')).
+  //              pipe(new BufferReportStream('After Parsing')).
                 pipe(new LolomoServiceStream()).
-                pipe(new BufferReportStream('After LolomoServiceStream')).
+   //             pipe(new BufferReportStream('After LolomoServiceStream')).
                 pipe(socket);
         }).
         on('error', function _onServerError(e) {

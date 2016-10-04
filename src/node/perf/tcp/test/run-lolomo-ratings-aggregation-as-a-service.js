@@ -8,6 +8,7 @@ const FramingStream = require('../FramingStream');
 const TFramingStream = require('../TFramingStream');
 const LolomoStream = require('../LolomoStream');
 const RatingsStream = require('../RatingsStream');
+const BufferReportStream = require('../BufferReportStream');
 const LogMetricsStream = require('../LogMetricsStream');
 const ParseStream = require('../ParseStream');
 const AsAService = require('../AsAService');
