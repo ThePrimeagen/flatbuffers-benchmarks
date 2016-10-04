@@ -8,6 +8,7 @@ const FramingStream = require('../FramingStream');
 const TFramingStream = require('../TFramingStream');
 const LolomoStream = require('../LolomoStream');
 const RatingsStream = require('../RatingsStream');
+const LogMetricsStream = require('../LogMetricsStream');
 const ParseStream = require('../ParseStream');
 const AsAService = require('../AsAService');
 const Netflix = require('../../../data/lolomo_generated').Netflix;
@@ -37,9 +38,6 @@ function initialize() {
         }
 
         lolomoClient = lClient;
-        pipeLolomo = lolomoClient.
-            pipe(new TFramingStream()).
-            pipe(new ParseStream(Lolomo.getRootAsLolomo));
         runWhenReady(lolomoClient, ratingsClient);
     });
 
@@ -49,9 +47,6 @@ function initialize() {
         }
 
         ratingsClient = rClient;
-        pipeRatings = ratingsClient.
-            pipe(new TFramingStream()).
-            pipe(new ParseStream(RatingsResponse.getRootAsRatingsResponse));
         runWhenReady(lolomoClient, ratingsClient, pipeLolomo, pipeRatings);
     });
 }

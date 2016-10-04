@@ -11,7 +11,9 @@ const programArgs = require('../../../programArgs');
 const cache = new Cache();
 const compress = programArgs.compress;
 
-function responder(client, buffer) {
+function responder(client, fullBuffer) {
+    // slice off the length portionn.
+    const buffer = fullBuffer.slice(4);
     AsAService.parse(buffer, RatingsRequest.getRootAsRatingsRequest, compress,
                      function _parsed(e, ratingsRequest) {
         const isJSON = AsAService.isJSONRequest(buffer);

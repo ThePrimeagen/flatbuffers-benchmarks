@@ -4,7 +4,7 @@ const Transform = require('stream').Transform;
 const inherits = require('util').inherits;
 
 const AsAService = require('./AsAService');
-const Lolomo = require('../../data/lolomo_generated').Lolomo;
+const Lolomo = require('../../data/lolomo_generated').Netflix.Lolomo;
 const TFramingStream = require('./TFramingStream');
 const ParseStream = require('./ParseStream');
 
@@ -69,6 +69,8 @@ LolomoStream.prototype._transform = function _transform(chunk, enc, cb) {
     if (this._idMap[clientId]) {
         throw new Error(`This clientId ${clientId} is already in use`);
     }
+
+    this._idMap[clientId] = chunk;
 
     // Pass-through for the lolomoClient from the original request from the
     // user.

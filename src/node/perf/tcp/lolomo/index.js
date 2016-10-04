@@ -14,7 +14,9 @@ const programArgs = require('../../../programArgs');
 const cache = new Cache();
 const compress = programArgs.compress;
 
-function responder(client, buffer) {
+function responder(client, fullBuffer) {
+    // slice off the length portionn.
+    const buffer = fullBuffer.slice(4);
     AsAService.parse(buffer, LolomoRequest.getRootAsLolomoRequest, false,
                      function _parsed(e, lolomoRequest) {
         const isJSON = AsAService.isJSONRequest(buffer);
