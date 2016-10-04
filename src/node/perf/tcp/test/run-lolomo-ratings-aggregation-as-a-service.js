@@ -107,8 +107,8 @@ function runWhenReady(lolomoClient, ratingsClient, pipeLolomo, pipeRatings) {
             pipe(new ParseStream(rootRequest)).
             pipe(new LolomoStream(lolomoClient)).
             pipe(new RatingsStream(ratingsClient)).
-            pipe(new PluckOutputStream()).
             pipe(new LogGrabberStream(logger)).
+            pipe(new PluckOutputStream()).
             pipe(socket).
             on('error', function _onError(e) {
                 console.log('lolomo#frameError#', e);
