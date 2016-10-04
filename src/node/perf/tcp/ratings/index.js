@@ -18,7 +18,7 @@ const inherits = require('util').inherits;
 const objectMode = {objectMode: true};
 
 const RatingsServiceStream = function _RatingsServiceStream() {
-    Transform.call(this);
+    Transform.call(this, objectMode);
 };
 
 module.exports = RatingsServiceStream;
@@ -43,7 +43,7 @@ RatingsServiceStream.prototype._transform = function _transform(chunk, enc, cb) 
 
     const data = fillRequest(ratingsRequest, clientId, isJSON);
 
-    this.push(toBuffer(data, isJSON));
+    this.push(AsAService.createTransportBuffer(toBuffer(data, isJSON), isJSON));
 
     cb();
 };

@@ -49,7 +49,7 @@ const AsAService = module.exports = {
                                                    compress));
     },
 
-    createTransportBuffer(buf, isJSON, compress) {
+    createTransportBuffer(buf, isJSON) {
         const lenAndTypeBuf = new Buffer(5);
 
         const len = buf.length;

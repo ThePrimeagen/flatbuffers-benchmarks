@@ -6,7 +6,6 @@ const ratingsAsAService = require('../ratings');
 const programArgs = require('../../../programArgs');
 const TFramingStream = require('../TFramingStream');
 const BufferReportStream = require('../BufferReportStream');
-const ToSocket = require('../ToSocket');
 const ParseStream = require('../ParseStream');
 const LolomoServiceStream = require('../lolomo');
 const LolomoRequest = require('../../../data/lolomo-request_generated').Netflix.LolomoRequest;
@@ -28,7 +27,7 @@ function _runServer(cb) {
                 pipe(new BufferReportStream('After Parsing')).
                 pipe(new LolomoServiceStream()).
                 pipe(new BufferReportStream('After LolomoServiceStream')).
-                pipe(new ToSocket(socket));
+                pipe(socket);
         }).
         on('error', function _onServerError(e) {
             console.log('LolomoAsAService#Error', e.message);

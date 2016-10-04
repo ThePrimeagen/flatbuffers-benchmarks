@@ -53,7 +53,7 @@ LolomoServiceStream.prototype._transform = function _transform(chunk, enc, cb) {
         cache.insert(clientId, key, data);
     }
 
-    this.push(toBuffer(data, isJSON));
+    this.push(AsAService.createTransportBuffer(toBuffer(data, isJSON), isJSON));
 
     cb();
 };
