@@ -62,11 +62,11 @@ function runWhenReady(lolomoClient, ratingsClient, pipeLolomo, pipeRatings) {
         port: programArgs.port
     };
 
+    const logStream = new LogMetricsStream();
     const server = net.createServer(function _onServerConnection(socket) {
 
         const lolomoStream = new LolomoStream(lolomoClient);
         const ratingsStream = new RatingsStream(ratingsClient);
-        const logStream = new LogMetricsStream();
         socket.
             pipe(new TFramingStream()).
             pipe(new ParseStream(rootRequest)).
@@ -82,7 +82,6 @@ function runWhenReady(lolomoClient, ratingsClient, pipeLolomo, pipeRatings) {
             on('end', function _cleanUp() {
                 lolomoStream.cleanUp();
                 ratingsStream.cleanUp();
-                logStream.cleanUp();
             });
     });
 
