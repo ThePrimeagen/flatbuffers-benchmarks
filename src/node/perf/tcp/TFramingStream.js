@@ -170,6 +170,15 @@ FramingStream.prototype.__push = function __push(aggregatedData) {
         parsed: null,
 
         // If the object is JSON or flatbuffers.
-        isJSON: false
+        isJSON: false,
+
+        clientId: 0,
+
+        // The lolomo request object
+        lolomo: null,
+
+        lolomoRaw: null,
+
+        ids: null
     });
 }
