@@ -16,7 +16,7 @@ const compress = programArgs.compress;
 
 function responder(client, buffer) {
     AsAService.parse(buffer, LolomoRequest.getRootAsLolomoRequest, compress,
-                     function _parsed(lolomoRequest) {
+                     function _parsed(e, lolomoRequest) {
         const isJSON = AsAService.isJSONRequest(buffer);
         const clientId = isJSON ? lolomoRequest.clientId :
                              lolomoRequest.clientId();
