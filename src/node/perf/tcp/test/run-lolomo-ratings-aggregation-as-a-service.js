@@ -166,6 +166,7 @@ function runWhenReady(lolomoClient, ratingsClient) {
                         lolomo: null
                     };
 
+
                     AsAService.write(lolomoClient, chunk.slice(1), isJSON,
                                      compress);
                 });

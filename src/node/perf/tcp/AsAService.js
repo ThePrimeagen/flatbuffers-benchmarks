@@ -10,6 +10,13 @@ function isJSONRequest(buf) {
 }
 
 function toBuffer(obj, isJSON) {
+
+    // For when we do zero copy stuff, we do not need to bufferize an object
+    // i.e. json.
+    if (obj instanceof Buffer) {
+        return obj;
+    }
+
     if (isJSON) {
         return new Buffer(JSON.stringify(obj));
     }
