@@ -49,8 +49,8 @@ LogMetricsStream.prototype._transform = function _transform(chunk, enc, cb) {
 
     const isJSON = chunk.isJSON;
     const req = chunk.parsed;
-    const rows = isJSON ? req.rows.length : req.rowsLength();
-    const columns = isJSON ? req.columns.length : req.columnsLength();
+    const rows = isJSON ? req.rows : req.rows();
+    const columns = isJSON ? req.columns : req.columns();
     const count = rows * columns;
 
     if (isJSON) {
