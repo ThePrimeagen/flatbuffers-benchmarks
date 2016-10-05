@@ -3,13 +3,17 @@
 const programArgs = require('../../programArgs');
 const toBuffer = require('../../toBuffer');
 const AsAService = require('./AsAService');
+const TFramingStream = require('./TFramingStream');
+const ParseStream = require('./ParseStream');
 
-const TCPWrapper = function _TCPWrapper(parsedTCP, name) {
-    this._parsedTCP = parsedTCP;
+const TCPWrapper = function _TCPWrapper(tcp, name, rootFunction) {
+    this._tcp = tcp;
     const memoMap = this._memoMap = {};
     const callerMap = this._callerMap = {};
 
-    parsedTCP.
+    tcp.
+        pipe(new TFramingStream()).
+        pipe(new ParseStream(rootFunction)).
         on('data', function _onData(data) {
             const clientId = data.clientId;
             const memo = memoMap[clientId];
@@ -38,6 +42,6 @@ module.exports = TCPWrapper;
 TCPWrapper.prototype.write = function write(buffer, memo, caller) {
     this._memoMap[memo.clientId] = memo;
     this._callerMap[memo.clientId] = caller;
-    this._parsedTCP.write(buffer);
+    this._tcp.write(buffer);
 };
 

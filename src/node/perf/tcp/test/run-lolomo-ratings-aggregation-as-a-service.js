@@ -41,10 +41,7 @@ function initialize() {
             throw err;
         }
 
-        lolomoClient = new TCPWrapper(lClient.
-            pipe(new TFramingStream()).
-            pipe(new ParseStream(rootLolomo)), 'Lolomo');
-
+        lolomoClient = new TCPWrapper(lClient, 'Lolomo', rootLolomo);
         runWhenReady(lolomoClient, ratingsClient);
     });
 
@@ -53,9 +50,7 @@ function initialize() {
             throw err;
         }
 
-        ratingsClient = new TCPWrapper(rClient.
-            pipe(new TFramingStream()).
-            pipe(new ParseStream(rootResponse)), 'Ratings');
+        ratingsClient = new TCPWrapper(rClient, 'Ratings', rootResponse);
         runWhenReady(lolomoClient, ratingsClient);
     });
 }
