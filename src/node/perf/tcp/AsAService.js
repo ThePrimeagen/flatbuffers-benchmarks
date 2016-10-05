@@ -4,7 +4,7 @@ const zlib = require('zlib');
 const flatstr = require('flatstr');
 
 const flatbuffers = require('../../flatbuffers').flatbuffers;
-const toBuffer = require('../toBuffer');
+const toBuffer = require('../../toBuffer');
 
 function isJSONRequest(buf) {
     return buf.readUInt8(0) === 1;
