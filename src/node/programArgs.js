@@ -21,7 +21,7 @@ const defaultArgs = Object.
         percentSimilar: 0.1,
         isJSON: true,
         opsCount: 100,
-        host: 'localhost',
+        host: process.env.SERVER_ADDR || 'localhost',
         port: 33333,
         mutationCount: 10,
         clientId: 1,
@@ -29,9 +29,9 @@ const defaultArgs = Object.
         isGraph: false,
 
         // Purely for the aggregation service runner.
-        lolomoHost: 'localhost',
+        lolomoHost: process.env.LOLOMO_ADDR || 'localhost',
         lolomoPort: 33334,
-        ratingsHost: 'localhost',
+        ratingsHost: process.env.RATINGS_ADDR || 'localhost',
         ratingsPort: 33335,
 
         // If compression should happen
