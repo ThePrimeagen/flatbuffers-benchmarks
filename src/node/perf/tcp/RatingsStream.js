@@ -17,16 +17,6 @@ const compress = programArgs.compress;
 const RatingsStream = function _RatingsStream(ratingClient) {
     Transform.call(this, objectMode);
     this._ratingClient = ratingClient;
-
-    ratingClient.
-        on('data', function _onRatingsData(data) {
-        }).
-        on('error', function _onRatingData(e) {
-            console.log('ratingClient#ratingStream#error', e.message, e.stack);
-        }).
-        on('complete', function _onratingData() {
-            console.log('ratingClient#ratingStream#complete');
-        });
 };
 
 module.exports = RatingsStream;

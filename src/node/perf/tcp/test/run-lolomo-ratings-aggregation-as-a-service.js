@@ -16,6 +16,7 @@ const TCPWrapper = require('../TCPWrapper');
 const AsAService = require('../AsAService');
 const Netflix = require('../../../data/lolomo_generated').Netflix;
 const LolomoRequest = require('../../../data/lolomo-request_generated').Netflix.LolomoRequest;
+const RatingsResponse = require('../../../data/ratings-response_generated').Netflix.RatingsResponse;
 const LolomoGenerator = require('../../../data/LolomoGenerator');
 const flatbuffers = require('../../../flatbuffers').flatbuffers;
 const createServer = require('../../http/server').createSimpleServer;

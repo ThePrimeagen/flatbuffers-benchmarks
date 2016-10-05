@@ -46,15 +46,8 @@ LolomoStream.prototype._transform = function _transform(chunk, enc, cb) {
     const isJSON = chunk.isJSON;
     const clientId = chunk.clientId = _getId(chunk.parsed, isJSON);
 
-    if (this._idMap[clientId]) {
-        throw new Error(`This clientId ${clientId} is already in use`);
-    }
+    this._lolomoClient.write(chunk.original, chunk, this);
 
-    this._idMap[clientId] = chunk;
-
-    // Pass-through for the lolomoClient from the original request from the
-    // user.
-    this._lolomoClient.write(chunk.original);
     cb();
 };
 
