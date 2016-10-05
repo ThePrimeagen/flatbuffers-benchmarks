@@ -5,50 +5,29 @@ const inherits = require('util').inherits;
 
 const AsAService = require('./AsAService');
 const Lolomo = require('../../data/lolomo_generated').Netflix.Lolomo;
-const TFramingStream = require('./TFramingStream');
-const ParseStream = require('./ParseStream');
+const TCPWrapper = require('./TCPWrapper');
 
 const objectMode = {objectMode: true};
-const rootLolomo = Lolomo.getRootAsLolomo;
 
 const LolomoStream = function _LolomoStream(lolomoClient) {
     Transform.call(this, objectMode);
     this._lolomoClient = lolomoClient;
-    this._framer = new TFramingStream();
-
-    const idMap = this._idMap = {};
-    const self = this;
-
-    lolomoClient.
-        pipe(this._framer).
-        pipe(new ParseStream(rootLolomo)).
-        on('data', function _onLolomoData(data) {
-            const isJSON = data.isJSON;
-            const clientId = _getId(data.parsed, isJSON)
-            const request = idMap[clientId];
-
-            if (!request) {
-                throw new Error(`request does not exist for LolomoStream for ${clientId}`);
-            }
-
-            request.lolomo = data.parsed;
-            request.lolomoRaw = data.original;
-
-            // Pushes the request object to the next client.
-            self.push(request);
-            idMap[clientId] = undefined;
-        }).
-        on('error', function _onLolomoData(e) {
-            console.log('lolomoClient#lolomoStream#error', e.message, e.stack);
-        }).
-        on('complete', function _onLolomoData() {
-            console.log('lolomoClient#lolomoStream#complete');
-        });
 };
 
 module.exports = LolomoStream;
 
 inherits(LolomoStream, Transform);
+
+LolomoStream.prototype.onData = function onData(memo, data) {
+    const isJSON = memo.isJSON;
+    const clientId = _getId(memo.parsed, isJSON)
+
+    memo.lolomo = data.parsed;
+    memo.lolomoRaw = data.original;
+
+    // Pushes the memo object to the next client.
+    self.push(memo);
+};
 
 /**
  * Expects chunk to be a message from the framer stream.
@@ -80,9 +59,6 @@ LolomoStream.prototype._transform = function _transform(chunk, enc, cb) {
 };
 
 LolomoStream.prototype._flush = function _flush() { };
-LolomoStream.prototype.cleanUp = function cleanUp() {
-    this._lolomoClient.unpipe(this._framer);
-};
 
 function _getId(parsed, isJSON) {
     return isJSON ? parsed.clientId : parsed.clientId();

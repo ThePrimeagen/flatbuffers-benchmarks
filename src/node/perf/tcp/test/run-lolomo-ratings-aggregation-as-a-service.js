@@ -12,6 +12,7 @@ const BufferReportStream = require('../BufferReportStream');
 const PluckOutputStream = require('../PluckOutputStream');
 const LogGrabberStream = require('../LogGrabberStream');
 const ParseStream = require('../ParseStream');
+const TCPWrapper = require('../TCPWrapper');
 const AsAService = require('../AsAService');
 const Netflix = require('../../../data/lolomo_generated').Netflix;
 const LolomoRequest = require('../../../data/lolomo-request_generated').Netflix.LolomoRequest;
@@ -21,13 +22,13 @@ const createServer = require('../../http/server').createSimpleServer;
 
 const Lolomo = Netflix.Lolomo;
 const rootRequest = LolomoRequest.getRootAsLolomoRequest;
+const rootLolomo = Lolomo.getRootAsLolomo;
+const rootResponse = RatingsResponse.getRootAsRatingsResponse;
 const compress = programArgs.compress;
 
 function initialize() {
     let lolomoClient = null;
     let ratingsClient = null;
-    let pipeLolomo = null;
-    let pipeRatings = null;
 
     const lHost = programArgs.lolomoHost;
     const lPort = programArgs.lolomoPort;
@@ -39,7 +40,10 @@ function initialize() {
             throw err;
         }
 
-        lolomoClient = lClient;
+        lolomoClient = new TCPWrapper(lClient.
+            pipe(new TFramingStream()).
+            pipe(new ParseStream(rootLolomo)), 'Lolomo');
+
         runWhenReady(lolomoClient, ratingsClient);
     });
 
@@ -48,8 +52,10 @@ function initialize() {
             throw err;
         }
 
-        ratingsClient = rClient;
-        runWhenReady(lolomoClient, ratingsClient, pipeLolomo, pipeRatings);
+        ratingsClient = new TCPWrapper(rClient.
+            pipe(new TFramingStream()).
+            pipe(new ParseStream(rootResponse)), 'Ratings');
+        runWhenReady(lolomoClient, ratingsClient);
     });
 }
 
@@ -90,7 +96,7 @@ function loggerClosure() {
 
 const logger = loggerClosure();
 
-function runWhenReady(lolomoClient, ratingsClient, pipeLolomo, pipeRatings) {
+function runWhenReady(lolomoClient, ratingsClient) {
     if (!lolomoClient || !ratingsClient) {
         return;
     }
@@ -114,10 +120,6 @@ function runWhenReady(lolomoClient, ratingsClient, pipeLolomo, pipeRatings) {
                 console.log('lolomo#frameError#', e);
                 console.log('lolomo#frameError#', e.stack);
                 process.abort(1);
-            }).
-            on('end', function _cleanUp() {
-                lolomoStream.cleanUp();
-                ratingsStream.cleanUp();
             });
     });
 

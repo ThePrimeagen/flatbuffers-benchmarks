@@ -12,35 +12,14 @@ const programArgs = require('../../programArgs');
 const flatbuffers = require('../../flatbuffers').flatbuffers;
 
 const objectMode = {objectMode: true};
-const rootResponse = RatingsResponse.getRootAsRatingsResponse;
 const compress = programArgs.compress;
 
 const RatingsStream = function _RatingsStream(ratingClient) {
     Transform.call(this, objectMode);
     this._ratingClient = ratingClient;
-    this._framer = new TFramingStream();
-
-    const idMap = this._idMap = {};
-    const self = this;
 
     ratingClient.
-        pipe(this._framer).
-        pipe(new ParseStream(rootResponse)).
         on('data', function _onRatingsData(data) {
-            const isJSON = data.isJSON;
-            const clientId = _getId(data.parsed, isJSON)
-            const request = idMap[clientId];
-
-            if (!request) {
-                throw new Error(`request does not exist for RatingsStream for ${clientId}`);
-            }
-
-            // Update the lolomo.
-            mergeData(request.lolomo, request.ids, data.parsed, isJSON);
-
-            // Pushes the request object to the next client.
-            self.push(request);
-            idMap[clientId] = undefined;
         }).
         on('error', function _onRatingData(e) {
             console.log('ratingClient#ratingStream#error', e.message, e.stack);
@@ -53,6 +32,21 @@ const RatingsStream = function _RatingsStream(ratingClient) {
 module.exports = RatingsStream;
 
 inherits(RatingsStream, Transform);
+
+/**
+ * On data.  This is the response from the underlying tcp connection to the
+ * ratings client.
+ */
+RatingsStream.prototype.onData = function _onData(memo, data) {
+    const isJSON = memo.isJSON;
+    const clientId = _getId(memo.parsed, isJSON)
+
+    // Update the lolomo.
+    mergeData(memo.lolomo, memo.ids, data.parsed, isJSON);
+
+    // Pushes the memo object to the next client.
+    self.push(memo);
+};
 
 /**
  * Expects chunk to be a message from the framer stream.
@@ -79,16 +73,13 @@ RatingsStream.prototype._transform = function _transform(chunk, enc, cb) {
     const ids = chunk.ids = getIds(chunk.lolomo, isJSON, false);
     const ratingRequest = buildRatingsRequest(ids, clientId, isJSON);
 
-    // write to the service
-    AsAService.write(this._ratingClient, ratingRequest, isJSON, compress);
+    // write to the service and wait for the callback onData
+    const buf = AsAService.toTCPBuffer(ratingRequest, isJSON);
+    this._ratingClient.write(buf, chunk, this);
     cb();
 };
 
 RatingsStream.prototype._flush = function _flush() { };
-
-RatingsStream.prototype.cleanUp = function cleanUp() {
-    this._ratingClient.unpipe(this._framer);
-};
 
 function _getId(parsed, isJSON) {
     return isJSON ? parsed.clientId : parsed.clientId();

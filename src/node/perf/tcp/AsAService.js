@@ -4,33 +4,19 @@ const zlib = require('zlib');
 const flatstr = require('flatstr');
 
 const flatbuffers = require('../../flatbuffers').flatbuffers;
+const toBuffer = require('../toBuffer');
 
 function isJSONRequest(buf) {
     return buf.readUInt8(0) === 1;
 }
 
-function toBuffer(obj, isJSON) {
-
-    // For when we do zero copy stuff, we do not need to bufferize an object
-    // i.e. json.
-    if (obj instanceof Buffer) {
-        return obj;
-    }
-
-    if (isJSON) {
-        return new Buffer(JSON.stringify(obj));
-    }
-
-    if (obj.bb) {
-        return new Buffer(obj.bb.bytes());
-    }
-
-    // This should be the uint8 array case.
-    return new Buffer(obj);
-}
 
 const AsAService = module.exports = {
-    toBuffer: toBuffer,
+    toTCPBuffer: function toTCPBuffer(obj, isJSON, compress) {
+        const buf = toBuffer(obj, isJSON);
+        return AsAService.createTransportBuffer(buf, isJSON, compress);
+    },
+
     write(res, obj, isJSON, compress, noManipulationNeeded) {
         if (noManipulationNeeded) {
             return res.write(obj);
