@@ -7,25 +7,48 @@ const AsAService = require('../AsAService');
 const random = require('../../../data/random').random;
 const Cache = require('../Cache');
 const programArgs = require('../../../programArgs');
+const toBuffer = require('../../../toBuffer');
 
 const cache = new Cache();
 const compress = programArgs.compress;
 
-function responder(client, buffer) {
-    AsAService.parse(buffer, RatingsRequest.getRootAsRatingsRequest, compress,
-                     function _parsed(e, ratingsRequest) {
-        const isJSON = AsAService.isJSONRequest(buffer);
-        const clientId = isJSON ? ratingsRequest.clientId :
-                             ratingsRequest.clientId();
-        const data = fillRequest(ratingsRequest, clientId, isJSON);
-        const requestLength = isJSON ? ratingsRequest.videos.length :
-                             ratingsRequest.videosLength();
+const Transform = require('stream').Transform;
+const inherits = require('util').inherits;
 
-        AsAService.write(client, data, isJSON, compress);
-    });
-}
+const objectMode = {objectMode: true};
 
-module.exports = responder;
+const RatingsServiceStream = function _RatingsServiceStream() {
+    Transform.call(this, objectMode);
+};
+
+module.exports = RatingsServiceStream;
+
+inherits(RatingsServiceStream, Transform);
+
+/**
+ * Expects chunk to be a message from the framer stream.
+ *
+ * @param {{
+ *     original: Buffer,
+ *     unparsed: Buffer,
+ *     parsed: object,
+ *     isJSON: boolean
+ * }} chunk - The chunked data from the framing stream
+ */
+RatingsServiceStream.prototype._transform = function _transform(chunk, enc, cb) {
+    const isJSON = chunk.isJSON;
+    const ratingsRequest = chunk.parsed;
+    const clientId = isJSON ? ratingsRequest.clientId :
+        ratingsRequest.clientId();
+
+    const data = fillRequest(ratingsRequest, clientId, isJSON);
+
+    this.push(AsAService.createTransportBuffer(toBuffer(data, isJSON), isJSON));
+
+    cb();
+};
+
+RatingsServiceStream.prototype._flush = function _flush() { };
 
 function fillRequest(request, clientId, isJSON) {
     let videoMap = cache.get(clientId);

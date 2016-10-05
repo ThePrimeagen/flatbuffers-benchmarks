@@ -5,12 +5,12 @@ module.exports = function buildClient(host, port, cb) {
         port: port,
         host: host
     };
-    
+
     const client = net.connect(opts, function _onClientConnection(e) {
         if (e) {
             throw new Error(e);
         }
-        
+
         cb(null, client);
     });
 };

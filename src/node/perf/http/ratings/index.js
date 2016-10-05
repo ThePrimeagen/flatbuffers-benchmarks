@@ -26,18 +26,18 @@ function responder(ratingsRequest, isJSON) {
     const clientId = isJSON ? ratingsRequest.clientId : ratingsRequest.clientId();
     const data = fillRequest(ratingsRequest, clientId, isJSON);
     const requestLength = isJSON ? ratingsRequest.videos.length : ratingsRequest.videosLength();
-    
+
     // Reporting
     if (isJSON) {
         jsonCount++;
         jsonVideoCount += requestLength;
     }
-    
+
     else {
         fbsCount++;
         fbsVideoCount += requestLength;
     }
-    
+
     return data;
 }
 
@@ -49,42 +49,42 @@ function fillRequest(request, clientId, isJSON) {
         videoMap = {};
         cache.insert(clientId, undefined, videoMap);
     }
-    
-    
+
+
     const videosLength = isJSON ? request.videos.length : request.videosLength();
     const videoRatings = [];
     for (let i = 0; i < videosLength; ++i) {
         const videoId = isJSON ? request.videos[i] : request.videos(i);
-        
-        // Store the result into the video ratings array if we have cached 
+
+        // Store the result into the video ratings array if we have cached
         // this video id.
         if (videoMap[videoId]) {
             videoRatings[i] = videoMap[videoId];
         }
-        
+
         // generate a new rating and save it into the map
         else {
             const rating = random(50, 1);
             videoRatings[i] = videoMap[videoId] = rating;
         }
     }
-    
+
     if (isJSON) {
         return {
             ratings: videoRatings,
             clientId: clientId
         };
     }
-    
+
     const bb = new flatbuffers.Builder(videosLength);
     const vOffset = RatingsResponse.createRatingsVector(bb, videoRatings);
-    
+
     RatingsResponse.startRatingsResponse(bb);
     RatingsResponse.addRatings(bb, vOffset);
     RatingsResponse.addClientId(bb, clientId);
     const offset = RatingsResponse.endRatingsResponse(bb);
     RatingsResponse.finishRatingsResponseBuffer(bb, offset);
-    
+
     return bb.asUint8Array();
 }
 

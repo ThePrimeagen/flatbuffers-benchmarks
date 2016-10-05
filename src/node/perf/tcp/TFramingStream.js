@@ -1,44 +1,24 @@
 'use strict';
 
-const Duplex = require('stream').Duplex;
+const Transform = require('stream').Transform;
 const inherits = require('util').inherits;
 
 // BIG pool size.
 Buffer.poolSize = 1048576;
+const objectMode = {objectMode: true};
 
-const FramingStream = function _FramingStream(parent) {
-    Duplex.call(this);
+const FramingStream = function _FramingStream() {
+    Transform.call(this, objectMode);
     this._buf = null;
     this._len = 0;
     this._totalLength = 0;
-
-    this._parent = parent;
-
-    const self = this;
-    parent.
-        on('data', function _data(chunk) {
-            self._chunk(chunk);
-        }).
-        on('error', function _error(e) {
-            console.log(e);
-            process.exit();
-        });
 };
 
 module.exports = FramingStream;
 
-inherits(FramingStream, Duplex);
+inherits(FramingStream, Transform);
 
-FramingStream.prototype._write = function _write(chunk, enc, cb) {
-    this._parent.write(chunk);
-    cb();
-};
-
-FramingStream.prototype._read = function _write() {
-    // todo: ?
-};
-
-FramingStream.prototype._chunk = function _transform(chunk) {
+FramingStream.prototype._transform = function _transform(chunk, enc, cb) {
 
     // If there is a partial length floating around, prepend it and then
     // start the aggregator algo.
@@ -83,7 +63,7 @@ FramingStream.prototype._chunk = function _transform(chunk) {
             // Pass the remaining data to the next item.
             const data = this._aggregate(chunk, frameMark);
 
-            this.push(data);
+            this.__push(data);
             this._buf = null;
 
             frameMark += remainingLength;
@@ -94,14 +74,18 @@ FramingStream.prototype._chunk = function _transform(chunk) {
             const endIndex = frameMark + (this._totalLength - this._len);
             const aggregatedData = this._aggregate(chunk, frameMark, endIndex);
 
-            this.push(aggregatedData);
+            this.__push(aggregatedData);
             this._buf = null;
 
             frameMark = endIndex;
         }
 
     } while (frameMark < chunk.length);
+
+    cb();
 };
+
+FramingStream.prototype._flush = function _flush() { };
 
 FramingStream.prototype._initializeAggregator = function _initAgg(chunk, start) {
 
@@ -117,10 +101,10 @@ FramingStream.prototype._initializeAggregator = function _initAgg(chunk, start) 
     // Preallocate the whole buffer at once.  Store an array bufs then splice
     // them into the overall buffer.
     this._buf = true;
-    this._bufs = [];
 
-    // No need to ignore the length.  we are going to keep that as part of a
-    // super cool optimization.  A partial zero copy arch.
+    // Include the length buffer as part of the buffer that way the construction
+    // of the original buffer + new buffer is clean.
+    this._bufs = [];
     return start;
 };
 
@@ -164,3 +148,35 @@ FramingStream.prototype._aggregate = function _aggregate(chunk, startIndex, endI
     chunk.copy(buf, idx, startIndex, endIndex);
     return buf;
 };
+
+// I dundered to ensure that I do not collide with the stream API.  :)
+FramingStream.prototype.__push = function __push(aggregatedData) {
+
+    // I will consider making a class for this return type if it improves
+    // performance.  I do not want to make to many micro ops as there are plenty
+    // of fish still left in the sea.
+    this.push({
+
+        // Original, length and all.
+        original: aggregatedData,
+
+        // Strip off the length argument so that the AsAService can use this
+        // buffer
+        unparsed: aggregatedData.slice(4),
+
+        // The parsed object from the parse stream
+        parsed: null,
+
+        // If the object is JSON or flatbuffers.
+        isJSON: false,
+
+        clientId: 0,
+
+        // The lolomo request object
+        lolomo: null,
+
+        lolomoRaw: null,
+
+        ids: null
+    });
+}

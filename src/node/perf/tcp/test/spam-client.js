@@ -37,7 +37,8 @@ const lolomoRequest = getLolomoRequest(rows, columns, percentSimilar, isGraph,
 const client = net.connect(options, function _onConnection() {
     const framerStream = new FramingStream(client);
     framerStream.
-        on('data', function _onData(chunk) {
+        on('data', function _onData(rawChunk) {
+            const chunk = rawChunk.slice(5);
             if (debug) {
                 if (compress) {
                     chunk = zlib.gunzipSync(chunk);

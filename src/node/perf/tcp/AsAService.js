@@ -4,33 +4,23 @@ const zlib = require('zlib');
 const flatstr = require('flatstr');
 
 const flatbuffers = require('../../flatbuffers').flatbuffers;
+const toBuffer = require('../../toBuffer');
 
 function isJSONRequest(buf) {
     return buf.readUInt8(0) === 1;
 }
 
-function toBuffer(obj, isJSON) {
-
-    // For when we do zero copy stuff, we do not need to bufferize an object
-    // i.e. json.
-    if (obj instanceof Buffer) {
-        return obj;
-    }
-
-    if (isJSON) {
-        return new Buffer(JSON.stringify(obj));
-    }
-
-    if (obj.bb) {
-        return new Buffer(obj.bb.bytes());
-    }
-
-    // This should be the uint8 array case.
-    return new Buffer(obj);
-}
 
 const AsAService = module.exports = {
-    write(res, obj, isJSON, compress) {
+    toTCPBuffer: function toTCPBuffer(obj, isJSON, compress) {
+        const buf = toBuffer(obj, isJSON);
+        return AsAService.createTransportBuffer(buf, isJSON, compress);
+    },
+
+    write(res, obj, isJSON, compress, noManipulationNeeded) {
+        if (noManipulationNeeded) {
+            return res.write(obj);
+        }
 
         let dataBuffer = toBuffer(obj, isJSON);
         if (compress) {
@@ -45,11 +35,16 @@ const AsAService = module.exports = {
                                                    compress));
     },
 
-    createTransportBuffer(buf, isJSON, compress) {
+    createTransportBuffer(buf, isJSON) {
         const lenAndTypeBuf = new Buffer(5);
 
         const len = buf.length;
-        lenAndTypeBuf.writeUInt32LE(len + 1, 0);
+
+        // Include the length of the length byte that way the framing stream can
+        // use that as part of the buffer collection.  Its output will be an
+        // object instead of a single buffe.  This will lead to a fantastic
+        // opportunity for less copying, which should make fbs much faster.
+        lenAndTypeBuf.writeUInt32LE(len + 5, 0);
         lenAndTypeBuf.writeUInt8(isJSON ? 1 : 0, 4);
 
         return Buffer.concat([lenAndTypeBuf, buf]);

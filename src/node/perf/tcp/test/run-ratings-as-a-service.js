@@ -1,20 +1,48 @@
 'use strict';
 
+const net = require('net');
+
 const ratingsAsAService = require('../ratings');
 const server = require('../server');
 const programArgs = require('../../../programArgs');
+const TFramingStream = require('../TFramingStream');
+const BufferReportStream = require('../BufferReportStream');
+const ParseStream = require('../ParseStream');
+const RatingsServiceStream = require('../ratings');
+const RatingsRequest = require('../../../data/ratings-request_generated').Netflix.RatingsRequest;
+const rootFn = RatingsRequest.getRootAsRatingsRequest;
 
 const host = programArgs.host;
 const port = programArgs.port;
 
 function _runServer(cb) {
-    server(host, port, ratingsAsAService, function _onServer(e) {
-        if (e) {
-            console.log('ERROR', e);
-            process.exit(1);
-        }
+
+    console.log('creating server', host, port);
+    const server = net.
+        createServer(function _onServerConnection(socket) {
+            socket.
+//                pipe(new BufferReportStream('Raw')).
+                pipe(new TFramingStream()).
+ //               pipe(new BufferReportStream('After Framing')).
+                pipe(new ParseStream(rootFn)).
+  //              pipe(new BufferReportStream('After Parsing')).
+                pipe(new RatingsServiceStream()).
+   //             pipe(new BufferReportStream('After LolomoServiceStream')).
+                pipe(socket);
+        }).
+        on('error', function _onServerError(e) {
+            console.log('RatingsAsAService#Error', e.message);
+            console.log('RatingsAsAService#Error', e.stack);
+        }).
+        on('complete', function _onCompleted() {
+            console.log('TCP RatingsAsAService completed');
+        });
+
+
+    // TODO: HOST?
+    server.listen(port, function _serverStart(e) {
         if (cb) {
-            cb();
+            cb(e);
         }
     });
 }

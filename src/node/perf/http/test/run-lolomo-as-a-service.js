@@ -1,8 +1,12 @@
 'use strict';
 
-const lolomoAsAService = require('../lolomo');
-const server = require('../server');
+const net = require('net');
+
+const ratingsAsAService = require('../ratings');
 const programArgs = require('../../../programArgs');
+const TFramingStream = require('../TFramingStream');
+const ParseStream = require('../ParseStream');
+const LolomoServiceStream = require('../lolomo');
 const LolomoRequest = require('../../../data/lolomo-request_generated').Netflix.LolomoRequest;
 const rootFn = LolomoRequest.getRootAsLolomoRequest;
 
@@ -10,13 +14,29 @@ const host = programArgs.host;
 const port = programArgs.port;
 
 function _runServer(cb) {
-    server.createParseServer(host, port, rootFn, lolomoAsAService, function _onServer(e) {
-        if (e) {
-            console.log('ERROR', e);
-            process.exit(1);
-        }
+
+    console.log('creating server', host, port);
+    const server = net.
+        createServer(function _onServerConnection(socket) {
+            socket.
+                pipe(new FramingStream()).
+                pipe(new ParseStream(rootFn)).
+                pipe(new LolomoServiceStream()).
+                pipe(socket);
+        }).
+        on('error', function _onServerError(e) {
+            console.log('LolomoAsAService#Error', e.message);
+            console.log('LolomoAsAService#Error', e.stack);
+        }).
+        on('complete', function _onCompleted() {
+            console.log('TCP LolomoAsAService completed');
+        });
+
+
+    // TODO: HOST?
+    server.listen(port, function _serverStart(e) {
         if (cb) {
-            cb();
+            cb(e);
         }
     });
 }
@@ -24,5 +44,12 @@ function _runServer(cb) {
 module.exports = _runServer;
 
 if (require.main === module) {
-    _runServer();
+    _runServer(function _callback(e) {
+        if (e) {
+            console.log('aborting on', e.message);
+            console.log('aborting on', e.stack);
+            process.abort(1);
+        }
+    });
 }
+
