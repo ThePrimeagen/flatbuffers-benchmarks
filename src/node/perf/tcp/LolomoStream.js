@@ -26,7 +26,7 @@ LolomoStream.prototype.onData = function onData(memo, data) {
     memo.lolomoRaw = data.original;
 
     // Pushes the memo object to the next client.
-    self.push(memo);
+    this.push(memo);
 };
 
 /**
