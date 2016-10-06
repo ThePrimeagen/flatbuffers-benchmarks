@@ -23,6 +23,10 @@ const defaultArgs = Object.
         opsCount: 100,
         host: process.env.SERVER_ADDR || 'localhost',
         port: 33333,
+
+        // Makes it use port for all values within the system, instead of
+        // lolomoPort, ratingsPort.
+        usePort: false,
         mutationCount: 10,
         clientId: 1,
         report: false,
@@ -43,7 +47,19 @@ const defaultArgs = Object.
         curlTimes: 1000,
 
         // For debugging purposes only.
-        debug: false
+        debug: false,
+
+        // spawning child processes
+        spawnCount: 0,
+        spawnProgram: 'lolomo'
     });
+
+defaultArgs.prototype.getLolomoPort = function _getLolomoPort() {
+    return defaultArgs.usePort && defaultArgs.port || defaultArgs.lolomoPort;
+};
+
+defaultArgs.prototype.getRatingsPort = function _getRatingsPort() {
+    return defaultArgs.usePort && defaultArgs.port || defaultArgs.ratingsPort;
+};
 
 module.exports = defaultArgs;

@@ -32,9 +32,9 @@ function initialize() {
     let ratingsClient = null;
 
     const lHost = programArgs.lolomoHost;
-    const lPort = programArgs.lolomoPort;
+    const lPort = programArgs.getLolomoPort();
     const rHost = programArgs.ratingsHost;
-    const rPort = programArgs.ratingsPort;
+    const rPort = programArgs.getRatingsPort();
 
     buildClient(lHost, lPort, function _lolomoClient(err, lClient) {
         if (err) {
