@@ -54,11 +54,11 @@ const defaultArgs = Object.
         spawnProgram: 'lolomo'
     });
 
-defaultArgs.prototype.getLolomoPort = function _getLolomoPort() {
+defaultArgs.getLolomoPort = function _getLolomoPort() {
     return defaultArgs.usePort && defaultArgs.port || defaultArgs.lolomoPort;
 };
 
-defaultArgs.prototype.getRatingsPort = function _getRatingsPort() {
+defaultArgs.getRatingsPort = function _getRatingsPort() {
     return defaultArgs.usePort && defaultArgs.port || defaultArgs.ratingsPort;
 };
 
